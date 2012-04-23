@@ -866,6 +866,7 @@ cciss_scsi_detect(ctlr_info_t *h)
 	sh->can_queue = cciss_tape_cmds;
 	sh->sg_tablesize = h->maxsgentries;
 	sh->max_cmd_len = MAX_COMMAND_SIZE;
+	sh->max_sectors = h->cciss_max_sectors;
 
 	((struct cciss_scsi_adapter_data_t *) 
 		h->scsi_ctlr)->scsi_host = sh;
@@ -913,7 +914,7 @@ cciss_map_one(struct pci_dev *pdev,
 	  (__u32) ((addr64 >> 32) & (__u64) 0x00000000FFFFFFFF);
 	c->SG[0].Len = buflen;
 	c->Header.SGList = (__u8) 1;   /* no. SGs contig in this cmd */
-	c->Header.SGTotal = (__u16) 1; /* total sgs in this cmd list */
+	c->Header.SGTotal = (u16) request_nsgs + chained;
 }
 
 static int
