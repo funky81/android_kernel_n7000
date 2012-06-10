@@ -209,6 +209,10 @@ struct xhci_op_regs {
 #define IMAN_IP    (1 << 1)
 #define IMAN_IE    (1 << 0)
 
+/* IMAN - Interrupt Management Register */
+#define IMAN_IP		(1 << 1)
+#define IMAN_IE		(1 << 0)
+
 /* USBSTS - USB status - status bitmasks */
 /* HC not running - set to 1 when run/stop bit is cleared. */
 #define STS_HALT	XHCI_STS_HALT

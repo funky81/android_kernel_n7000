@@ -552,7 +552,7 @@
 	 * entry (identifying the physical page) and %r23 up with
 	 * the from tlb entry (or nothing if only a to entry---for
 	 * clear_user_page_asm) */
-	.macro		do_alias	spc,tmp,tmp1,va,pte,prot,fault
+	.macro		do_alias	spc,tmp,tmp1,va,pte,prot,fault,patype
 	cmpib,COND(<>),n 0,\spc,\fault
 	ldil		L%(TMPALIAS_MAP_START),\tmp
 #if defined(CONFIG_64BIT) && (TMPALIAS_MAP_START >= 0x80000000)
@@ -1189,7 +1189,7 @@ dtlb_miss_20w:
 	nop
 
 dtlb_check_alias_20w:
-	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault,20
 
 	idtlbt          pte,prot
 
@@ -1213,7 +1213,7 @@ nadtlb_miss_20w:
 	nop
 
 nadtlb_check_alias_20w:
-	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate
+	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate,20
 
 	idtlbt          pte,prot
 
@@ -1245,7 +1245,7 @@ dtlb_miss_11:
 	nop
 
 dtlb_check_alias_11:
-	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault,11
 
 	idtlba          pte,(va)
 	idtlbp          prot,(va)
@@ -1277,7 +1277,7 @@ nadtlb_miss_11:
 	nop
 
 nadtlb_check_alias_11:
-	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate
+	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate,11
 
 	idtlba          pte,(va)
 	idtlbp          prot,(va)
@@ -1304,7 +1304,7 @@ dtlb_miss_20:
 	nop
 
 dtlb_check_alias_20:
-	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,dtlb_fault,20
 	
 	idtlbt          pte,prot
 
@@ -1330,7 +1330,7 @@ nadtlb_miss_20:
 	nop
 
 nadtlb_check_alias_20:
-	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate
+	do_alias	spc,t0,t1,va,pte,prot,nadtlb_emulate,20
 
 	idtlbt          pte,prot
 
@@ -1457,7 +1457,7 @@ naitlb_miss_20w:
 	nop
 
 naitlb_check_alias_20w:
-	do_alias	spc,t0,t1,va,pte,prot,naitlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,naitlb_fault,20
 
 	iitlbt		pte,prot
 
@@ -1511,7 +1511,7 @@ naitlb_miss_11:
 	nop
 
 naitlb_check_alias_11:
-	do_alias	spc,t0,t1,va,pte,prot,itlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,itlb_fault,11
 
 	iitlba          pte,(%sr0, va)
 	iitlbp          prot,(%sr0, va)
@@ -1557,7 +1557,7 @@ naitlb_miss_20:
 	nop
 
 naitlb_check_alias_20:
-	do_alias	spc,t0,t1,va,pte,prot,naitlb_fault
+	do_alias	spc,t0,t1,va,pte,prot,naitlb_fault,20
 
 	iitlbt          pte,prot
 

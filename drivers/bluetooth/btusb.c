@@ -100,6 +100,17 @@ static struct usb_device_id btusb_table[] = {
 	/* Canyon CN-BTU1 with HID interfaces */
 	{ USB_DEVICE(0x0c10, 0x0000) },
 
+	/* Broadcom BCM20702A0 */
+	{ USB_DEVICE(0x0489, 0xe042) },
+	{ USB_DEVICE(0x0a5c, 0x21e3) },
+	{ USB_DEVICE(0x0a5c, 0x21e6) },
+	{ USB_DEVICE(0x0a5c, 0x21e8) },
+	{ USB_DEVICE(0x0a5c, 0x21f3) },
+	{ USB_DEVICE(0x413c, 0x8197) },
+
+	/* Foxconn - Hon Hai */
+	{ USB_DEVICE(0x0489, 0xe033) },
+
 	{ }	/* Terminating entry */
 };
 
@@ -923,6 +934,15 @@ static int btusb_probe(struct usb_interface *intf,
 
 	if (ignore_sniffer && id->driver_info & BTUSB_SNIFFER)
 		return -ENODEV;
+
+	if (id->driver_info & BTUSB_ATH3012) {
+		struct usb_device *udev = interface_to_usbdev(intf);
+
+		/* Old firmware would otherwise let ath3k driver load
+		 * patch and sysconfig files */
+		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001)
+			return -ENODEV;
+	}
 
 	if (id->driver_info & BTUSB_ATH3012) {
 		struct usb_device *udev = interface_to_usbdev(intf);
