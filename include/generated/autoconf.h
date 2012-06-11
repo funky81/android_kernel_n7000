@@ -1,6 +1,6 @@
 /*
  * Automatically generated C config: don't edit
- * Linux/arm 3.0.15 Kernel Configuration
+ * Linux/arm 3.0.16 Kernel Configuration
  */
 #define CONFIG_NF_CONNTRACK_H323 1
 #define CONFIG_EXYNOS4_SETUP_I2C5 1
@@ -226,6 +226,7 @@
 #define CONFIG_SENSORS_GP2A_ANALOG 1
 #define CONFIG_SPI_BITBANG 1
 #define CONFIG_IP6_NF_IPTABLES 1
+#define CONFIG_CPU_FREQ_GOV_LULZACTIVE 1
 #define CONFIG_ARCH_SKIP_SECONDARY_CALIBRATE 1
 #define CONFIG_CPU_FREQ_GOV_USERSPACE 1
 #define CONFIG_HID_CYPRESS 1

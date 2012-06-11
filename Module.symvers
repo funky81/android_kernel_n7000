@@ -1891,7 +1891,6 @@
 0x00000000	spi_bitbang_start	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	put_io_context	vmlinux	EXPORT_SYMBOL
 0x00000000	blk_queue_io_min	vmlinux	EXPORT_SYMBOL
-0x00000000	blk_init_allocated_queue_node	vmlinux	EXPORT_SYMBOL
 0x00000000	nobh_truncate_page	vmlinux	EXPORT_SYMBOL
 0x00000000	__kfifo_dma_out_prepare	vmlinux	EXPORT_SYMBOL
 0x00000000	nf_ct_port_nla_policy	vmlinux	EXPORT_SYMBOL_GPL
