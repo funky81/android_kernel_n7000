@@ -199,8 +199,7 @@ ARCH		?= arm
 
 
 #CROSS_COMPILE = /root/kernel-N7000/source/toolchain/android-toolchain-eabi/bin/arm-eabi-
-#CROSS_COMPILE = /root/kernel-N7000/source/toolchain/DooMLoRD-android_prebuilt_toolchains-8a8c6c5/arm-eabi-linaro-4.6.2/bin/arm-eabi-
-CROSS_COMPILE = /root/kernel-N7000/source/toolchain/android-toolchain-eabi-4.6/bin/arm-linux-androideabi-
+CROSS_COMPILE = /root/kernel-N7000/source/toolchain/DooMLoRD-android_prebuilt_toolchains-8a8c6c5/arm-eabi-linaro-4.6.2/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
