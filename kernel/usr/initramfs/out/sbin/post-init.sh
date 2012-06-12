@@ -13,8 +13,61 @@ echo $(date) START of post-init.sh
 ##### Early-init phase #####
 
 # Android Logger enable tweak
-if /sbin/busybox [ "`/sbin/busybox grep ANDROIDLOGGER /system/etc/tweaks.conf`" ]; then
-  insmod /lib/modules/logger.ko
+#if /sbin/busybox [ "`/sbin/busybox grep ANDROIDLOGGER /system/etc/tweaks.conf`" ]; then
+#  insmod /lib/modules/logger.ko
+#fi
+
+#activate log
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep logger=on`" ];
+then
+   insmod /lib/modules/logger.ko
+fi
+
+#activate defrag
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep defrag=on`" ];
+then
+  echo "defrag: on"
+  for i in \
+    `find /data -iname "*.db"`
+    do \
+      sqlite3 $i 'VACUUM;'; 
+  done
+fi
+
+#setup i/o governor
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep io=sio`" ];
+then
+   echo "sio" > /sys/block/mmcblk0/queue/scheduler
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep io=cfq`" ];
+then
+   echo "cfq" > /sys/block/mmcblk0/queue/scheduler
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep io=bfq`" ];
+then
+   echo "bfq" > /sys/block/mmcblk0/queue/scheduler
+fi
+
+#setup  cpu governor
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep cpu=pegasusq`" ];
+then
+   echo "pegasusq" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep cpu=ondemand`" ];
+then
+   echo "ondemand" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep cpu=interactive`" ];
+then
+   echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep cpu=lulzactive`" ];
+then
+   echo "lulzactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+fi
+if /sbin/busybox [ "`/sbin/busybox cat /data/tweaks.conf | grep cpu=smartassV2`" ];
+then
+   echo "smartassV2" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 fi
 
 # IPv6 privacy tweak
@@ -56,10 +109,14 @@ fi
   done
   
 # Miscellaneous tweaks
-  echo "12288" > /proc/sys/vm/min_free_kbytes
-  echo "1500" > /proc/sys/vm/dirty_writeback_centisecs
-  echo "200" > /proc/sys/vm/dirty_expire_centisecs
+  echo "4096" > /proc/sys/vm/min_free_kbytes
+  echo "0" > /proc/sys/vm/oom_kill_allocating_task;
+  echo "0" > /proc/sys/vm/panic_on_oom;
+  echo "0" > /proc/sys/vm/laptop_mode;
   echo "0" > /proc/sys/vm/swappiness
+  echo "50" > /proc/sys/vm/vfs_cache_pressure
+  echo "90" > /proc/sys/vm/dirty_ratio
+  echo "70" > /proc/sys/vm/dirty_background_ratio
 
 # CFS scheduler tweaks
   echo HRTICK > /sys/kernel/debug/sched_features
@@ -72,6 +129,20 @@ fi
   echo "2" > /proc/sys/net/ipv4/tcp_syn_retries
   echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
   echo "10" > /proc/sys/net/ipv4/tcp_fin_timeout
+# Implement Additional TCP Tweaks
+  echo "0" > /proc/sys/net/ipv4/tcp_timestamps
+  echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+  echo "1" > /proc/sys/net/ipv4/tcp_sack
+  echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+  echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+  echo "5" > /proc/sys/net/ipv4/tcp_keepalive_probes
+  echo "30" > /proc/sys/net/ipv4/tcp_keepalive_intvl
+  echo "30" > /proc/sys/net/ipv4/tcp_fin_timeout
+  echo "404480" > /proc/sys/net/core/wmem_max
+  echo "404480" > /proc/sys/net/core/rmem_max
+  echo "256960" > /proc/sys/net/core/rmem_default
+  echo "256960" > /proc/sys/net/core/wmem_default
+  echo "4096,16384,404480" > /proc/sys/net/ipv4/tcp_wmem
 
 # SCHED_MC power savings level
   echo "1" > /sys/devices/system/cpu/sched_mc_power_savings
