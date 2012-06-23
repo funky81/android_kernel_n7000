@@ -12,7 +12,7 @@ rm -rf $(find kernel/usr/initramfs -name .git -print)
 export CONFIG_INITRAMFS_SOURCE=kernel/usr/initramfs/out
 #Enable FIPS mode
 export USE_SEC_FIPS_MODE=true
-make q1_speedmod_defconfig
+make goku_defconfig
 make -j4
 echo "Copying Modules"
 cp -a $(find . -name *.ko -print |grep -v initramfs) kernel/usr/initramfs/out/lib/modules/
@@ -27,3 +27,4 @@ make -j4
 echo "Make Odin File"
 tar -H ustar -c arch/arm/boot/zImage > kernel-zImage.tar
 md5sum -t kernel-zImage.tar >> kernel-zImage.tar
+cp kernel-zImage.tar /media/sf_Kernel-N7000/Goku-v1.2.tar
