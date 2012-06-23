@@ -200,6 +200,10 @@ ARCH		?= arm
 
 #CROSS_COMPILE = /root/kernel-N7000/source/toolchain/android-toolchain-eabi/bin/arm-eabi-
 CROSS_COMPILE = /root/kernel-N7000/source/toolchain/DooMLoRD-android_prebuilt_toolchains-8a8c6c5/arm-eabi-linaro-4.6.2/bin/arm-eabi-
+#CROSS_COMPILE = /root/kernel-N7000/source/toolchain/android-toolchain-eabi-4.6.2011/bin/arm-linux-androideabi-
+#CROSS_COMPILE = /root/kernel-N7000/source/toolchain/android-toolchain-eabi-4.7/bin/arm-eabi-
+#CROSS_COMPILE = /root/kernel-N7000/source/toolchain/gcc-linaro-arm-linux-gnueabihf-2012.05-20120523_linux/bin/arm-linux-gnueabihf-
+#CROSS_COMPILE  = /root/kernel-N7000/source/toolchain/android-toolchain-eabi-4.7-0.6/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -353,10 +357,10 @@ CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   =
+CFLAGS_MODULE   = -DMODULE -mtune=cortex-a9 -march=armv7-a -mfpu=neon
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
+CFLAGS_KERNEL	= -mtune=cortex-a9 -march=armv7-a -mfpu=neon
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
@@ -386,7 +390,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
                 #-fgcse-after-reload -fipa-cp-clone \
                 #-fmodulo-sched -fmodulo-sched-allow-regmoves \
 
-KBUILD_AFLAGS_KERNEL :=
+KBUILD_AFLAGS_KERNEL :=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=neon)
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_AFLAGS_MODULE  := -DMODULE
