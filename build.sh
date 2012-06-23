@@ -27,4 +27,4 @@ make -j4
 echo "Make Odin File"
 tar -H ustar -c arch/arm/boot/zImage > kernel-zImage.tar
 md5sum -t kernel-zImage.tar >> kernel-zImage.tar
-cp kernel-zImage.tar /media/sf_Kernel-N7000/Goku-v1.2.tar
+mv kernel-zImage.tar /media/sf_Kernel-N7000/Goku-v1.2.tar
