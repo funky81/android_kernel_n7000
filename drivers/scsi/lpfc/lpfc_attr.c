@@ -837,6 +837,47 @@ lpfc_sli4_pdev_status_reg_wait(struct lpfc_hba *phba)
 }
 
 /**
+ * lpfc_sli4_pdev_status_reg_wait - Wait for pdev status register for readyness
+ * @phba: lpfc_hba pointer.
+ *
+ * Description:
+ * SLI4 interface type-2 device to wait on the sliport status register for
+ * the readyness after performing a firmware reset.
+ *
+ * Returns:
+ * zero for success
+ **/
+static int
+lpfc_sli4_pdev_status_reg_wait(struct lpfc_hba *phba)
+{
+	struct lpfc_register portstat_reg;
+	int i;
+
+
+	lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
+		   &portstat_reg.word0);
+
+	/* wait for the SLI port firmware ready after firmware reset */
+	for (i = 0; i < LPFC_FW_RESET_MAXIMUM_WAIT_10MS_CNT; i++) {
+		msleep(10);
+		lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
+			   &portstat_reg.word0);
+		if (!bf_get(lpfc_sliport_status_err, &portstat_reg))
+			continue;
+		if (!bf_get(lpfc_sliport_status_rn, &portstat_reg))
+			continue;
+		if (!bf_get(lpfc_sliport_status_rdy, &portstat_reg))
+			continue;
+		break;
+	}
+
+	if (i < LPFC_FW_RESET_MAXIMUM_WAIT_10MS_CNT)
+		return 0;
+	else
+		return -EIO;
+}
+
+/**
  * lpfc_sli4_pdev_reg_request - Request physical dev to perform a register acc
  * @phba: lpfc_hba pointer.
  *
@@ -1378,6 +1419,10 @@ lpfc_poll_store(struct device *dev, struct device_attribute *attr,
 
 	if (phba->sli_rev == LPFC_SLI_REV4)
 		val = 0;
+
+	lpfc_printf_vlog(vport, KERN_ERR, LOG_INIT,
+		"3051 lpfc_poll changed from %d to %d\n",
+		phba->cfg_poll, val);
 
 	lpfc_printf_vlog(vport, KERN_ERR, LOG_INIT,
 		"3051 lpfc_poll changed from %d to %d\n",
@@ -3142,6 +3187,10 @@ lpfc_link_speed_store(struct device *dev, struct device_attribute *attr,
 		return -EINVAL;
 	if (sscanf(val_buf, "%i", &val) != 1)
 		return -EINVAL;
+
+	lpfc_printf_vlog(vport, KERN_ERR, LOG_INIT,
+		"3055 lpfc_link_speed changed from %d to %d %s\n",
+		phba->cfg_link_speed, val, nolip ? "(nolip)" : "(lip)");
 
 	lpfc_printf_vlog(vport, KERN_ERR, LOG_INIT,
 		"3055 lpfc_link_speed changed from %d to %d %s\n",

@@ -47,6 +47,7 @@
 /* Function prototypes */
 static int  option_probe(struct usb_serial *serial,
 			const struct usb_device_id *id);
+static void option_release(struct usb_serial *serial);
 static int option_send_setup(struct usb_serial_port *port);
 static void option_instat_callback(struct urb *urb);
 
@@ -474,6 +475,76 @@ static void option_instat_callback(struct urb *urb);
 #define YUGA_PRODUCT_CLU516			0x260C
 #define YUGA_PRODUCT_CLU528			0x260D
 #define YUGA_PRODUCT_CLU526			0x260F
+
+/* Viettel products */
+#define VIETTEL_VENDOR_ID			0x2262
+#define VIETTEL_PRODUCT_VT1000			0x0002
+
+/* ZD Incorporated */
+#define ZD_VENDOR_ID				0x0685
+#define ZD_PRODUCT_7000				0x7000
+
+/* LG products */
+#define LG_VENDOR_ID				0x1004
+#define LG_PRODUCT_L02C				0x618f
+
+/* MediaTek products */
+#define MEDIATEK_VENDOR_ID			0x0e8d
+
+/* YUGA products  www.yuga-info.com gavin.kx@qq.com */
+#define YUGA_VENDOR_ID				0x257A
+#define YUGA_PRODUCT_CEM600			0x1601
+#define YUGA_PRODUCT_CEM610			0x1602
+#define YUGA_PRODUCT_CEM500			0x1603
+#define YUGA_PRODUCT_CEM510			0x1604
+#define YUGA_PRODUCT_CEM800			0x1605
+#define YUGA_PRODUCT_CEM900			0x1606
+
+#define YUGA_PRODUCT_CEU818			0x1607
+#define YUGA_PRODUCT_CEU816			0x1608
+#define YUGA_PRODUCT_CEU828			0x1609
+#define YUGA_PRODUCT_CEU826			0x160A
+#define YUGA_PRODUCT_CEU518			0x160B
+#define YUGA_PRODUCT_CEU516			0x160C
+#define YUGA_PRODUCT_CEU528			0x160D
+#define YUGA_PRODUCT_CEU526			0x160F
+#define YUGA_PRODUCT_CEU881			0x161F
+#define YUGA_PRODUCT_CEU882			0x162F
+
+#define YUGA_PRODUCT_CWM600			0x2601
+#define YUGA_PRODUCT_CWM610			0x2602
+#define YUGA_PRODUCT_CWM500			0x2603
+#define YUGA_PRODUCT_CWM510			0x2604
+#define YUGA_PRODUCT_CWM800			0x2605
+#define YUGA_PRODUCT_CWM900			0x2606
+
+#define YUGA_PRODUCT_CWU718			0x2607
+#define YUGA_PRODUCT_CWU716			0x2608
+#define YUGA_PRODUCT_CWU728			0x2609
+#define YUGA_PRODUCT_CWU726			0x260A
+#define YUGA_PRODUCT_CWU518			0x260B
+#define YUGA_PRODUCT_CWU516			0x260C
+#define YUGA_PRODUCT_CWU528			0x260D
+#define YUGA_PRODUCT_CWU581			0x260E
+#define YUGA_PRODUCT_CWU526			0x260F
+#define YUGA_PRODUCT_CWU582			0x261F
+#define YUGA_PRODUCT_CWU583			0x262F
+
+#define YUGA_PRODUCT_CLM600			0x3601
+#define YUGA_PRODUCT_CLM610			0x3602
+#define YUGA_PRODUCT_CLM500			0x3603
+#define YUGA_PRODUCT_CLM510			0x3604
+#define YUGA_PRODUCT_CLM800			0x3605
+#define YUGA_PRODUCT_CLM900			0x3606
+
+#define YUGA_PRODUCT_CLU718			0x3607
+#define YUGA_PRODUCT_CLU716			0x3608
+#define YUGA_PRODUCT_CLU728			0x3609
+#define YUGA_PRODUCT_CLU726			0x360A
+#define YUGA_PRODUCT_CLU518			0x360B
+#define YUGA_PRODUCT_CLU516			0x360C
+#define YUGA_PRODUCT_CLU528			0x360D
+#define YUGA_PRODUCT_CLU526			0x360F
 
 /* Viettel products */
 #define VIETTEL_VENDOR_ID			0x2262
@@ -1257,7 +1328,7 @@ static struct usb_serial_driver option_1port_device = {
 	.ioctl             = usb_wwan_ioctl,
 	.attach            = usb_wwan_startup,
 	.disconnect        = usb_wwan_disconnect,
-	.release           = usb_wwan_release,
+	.release           = option_release,
 	.read_int_callback = option_instat_callback,
 #ifdef CONFIG_PM
 	.suspend           = usb_wwan_suspend,
@@ -1266,35 +1337,6 @@ static struct usb_serial_driver option_1port_device = {
 };
 
 static int debug;
-
-/* per port private data */
-
-#define N_IN_URB 4
-#define N_OUT_URB 4
-#define IN_BUFLEN 4096
-#define OUT_BUFLEN 4096
-
-struct option_port_private {
-	/* Input endpoints and buffer for this port */
-	struct urb *in_urbs[N_IN_URB];
-	u8 *in_buffer[N_IN_URB];
-	/* Output endpoints and buffer for this port */
-	struct urb *out_urbs[N_OUT_URB];
-	u8 *out_buffer[N_OUT_URB];
-	unsigned long out_busy;		/* Bit vector of URBs in use */
-	int opened;
-	struct usb_anchor delayed;
-
-	/* Settings for the port */
-	int rts_state;	/* Handshaking pins (outputs) */
-	int dtr_state;
-	int cts_state;	/* Handshaking pins (inputs) */
-	int dsr_state;
-	int dcd_state;
-	int ri_state;
-
-	unsigned long tx_start_time[N_OUT_URB];
-};
 
 /* Functions used by new usb-serial code. */
 static int __init option_init(void)
@@ -1398,7 +1440,8 @@ static void option_instat_callback(struct urb *urb)
 	int err;
 	int status = urb->status;
 	struct usb_serial_port *port =  urb->context;
-	struct option_port_private *portdata = usb_get_serial_port_data(port);
+	struct usb_wwan_port_private *portdata =
+					usb_get_serial_port_data(port);
 
 	dbg("%s", __func__);
 	dbg("%s: urb %p port %p has data %p", __func__, urb, port, portdata);
