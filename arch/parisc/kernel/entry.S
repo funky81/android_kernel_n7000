@@ -581,11 +581,15 @@
 	 */
 	cmpiclr,=	0x01,\tmp,%r0
 	ldi		(_PAGE_DIRTY|_PAGE_READ|_PAGE_WRITE),\prot
-#ifdef CONFIG_64BIT
+.ifc \patype,20
 	depd,z		\prot,8,7,\prot
-#else
+.else
+.ifc \patype,11
 	depw,z		\prot,8,7,\prot
-#endif
+.else
+	.error "undefined PA type to do_alias"
+.endif
+.endif
 	/*
 	 * OK, it is in the temp alias region, check whether "from" or "to".
 	 * Check "subtle" note in pacache.S re: r23/r26.
