@@ -553,6 +553,7 @@ struct modem_ctl {
 	unsigned gpio_reset_req_n;
 	unsigned gpio_cp_reset;
 	unsigned gpio_pda_active;
+	unsigned gpio_ap_dump_int;
 	unsigned gpio_phone_active;
 	unsigned gpio_cp_dump_int;
 	unsigned gpio_flm_uart_sel;
