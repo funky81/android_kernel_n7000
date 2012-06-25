@@ -135,7 +135,7 @@ static unsigned int exynos4_apll_pms_table[CPUFREQ_LEVEL_END] = {
 	((200<<16)|(6<<8)|(0x3)),
 
         /* APLL FOUT L5: 100MHz */
-        ((200<<16)|(6<<8)|(0x3)),
+        ((200<<16)|(6<<8)|(0x4)),
 };
 
 /*
