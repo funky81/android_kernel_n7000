@@ -186,9 +186,12 @@ struct s3cfb_global {
 	struct early_suspend	early_suspend;
 	struct wake_lock	idle_lock;
 #endif
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
 	atomic_t		busfreq_lock_cnt;	/* Bus frequency Lock count */
 	int			busfreq_flag;		/* context bus frequency flag*/
+	atomic_t		cpufreq_lock_cnt;
+	int			cpufreq_flag;
+	unsigned int		cpufreq_level;
 #endif
 };
 
@@ -258,7 +261,8 @@ struct s3cfb_user_chroma {
 #define S3CFB_SET_ALPHA_MODE		_IOW('F', 313, unsigned int)
 
 extern struct fb_ops			s3cfb_ops;
-extern inline struct s3cfb_global	*get_fimd_global(int id);
+//extern inline struct s3cfb_global	*get_fimd_global(int id);
+extern struct s3cfb_global     *get_fimd_global(int id);
 
 /* S3CFB */
 extern struct s3c_platform_fb *to_fb_plat(struct device *dev);
@@ -336,11 +340,12 @@ extern int s3cfb_set_buffer_size(struct s3cfb_global *ctrl, int id);
 extern int s3cfb_set_chroma_key(struct s3cfb_global *ctrl, int id);
 extern int s3cfb_channel_localpath_on(struct s3cfb_global *ctrl, int id);
 extern int s3cfb_channel_localpath_off(struct s3cfb_global *ctrl, int id);
-extern int s3cfb_check_vsync_status(struct s3cfb_global *ctrl);
-extern int s3cfb_set_dualrgb(struct s3cfb_global *ctrl, int mode);
 #ifdef CONFIG_FB_S5P_MIPI_DSIM
-extern int s3cfb_vsync_status_check(void);
+extern void s3cfb_set_trigger(struct s3cfb_global *ctrl);
+extern void s3cfb_trigger(void);
 #endif
+extern int s3cfb_check_vsync_status(struct s3cfb_global *ctrl);
+extern int s3cfb_vsync_status_check(void);
 
 #ifdef CONFIG_HAS_WAKELOCK
 #ifdef CONFIG_HAS_EARLYSUSPEND
@@ -355,17 +360,12 @@ extern void s3cfb_set_lcd_info(struct s3cfb_global *ctrl);
 #ifdef CONFIG_FB_S5P_MIPI_DSIM
 extern void s5p_dsim_early_suspend(void);
 extern void s5p_dsim_late_resume(void);
-#ifdef CONFIG_FB_S5P_S6E63M0
-extern void s6e63m0_early_suspend(void);
-extern void s6e63m0_late_resume(void);
-#else
 extern void s6e8ax0_early_suspend(void);
 extern void s6e8ax0_late_resume(void);
-#endif
 extern int s5p_dsim_fifo_clear(void);
+extern void s5p_dsim_frame_done_interrupt_enable(u8 enable);
 extern void set_dsim_hs_clk_toggle_count(u8 count);
-extern void set_dsim_lcd_enabled(u8 enable);
-extern u32 read_dsim_register(u32 num);
+extern void set_dsim_lcd_enabled(void);
 #endif
 
 
@@ -378,9 +378,14 @@ extern void ams369fg06_gpio_cfg(void);
 extern void lms501kf03_ldi_disable(void);
 #endif
 
-#if defined(CONFIG_FB_S5P_S6C1372) || defined(CONFIG_FB_S5P_S6F1202A)
+#if defined(CONFIG_FB_S5P_S6C1372)
 extern void s5c1372_ldi_enable(void);
 extern void s5c1372_ldi_disable(void);
+#endif
+
+#if defined(FEATURE_BUSFREQ_LOCK)
+extern void s3cfb_busfreq_lock(struct s3cfb_global *fbdev, unsigned int lock);
+extern void s3cfb_cpufreq_lock(struct s3cfb_global *fbdev, unsigned int lock);
 #endif
 
 extern int lcdfreq_init(struct fb_info *fb);

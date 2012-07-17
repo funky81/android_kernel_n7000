@@ -83,25 +83,25 @@ static const unsigned short tune_camera_outdoor[] = {
 };
 
 static const unsigned short tune_dynamic_ui_cabcOff[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x0088,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00b0, 0x1010,    /*CS hg ry*/
-	0x00b1, 0x1010,    /*CS hg gc*/
-	0x00b2, 0x1010,    /*CS hg bm*/
-	0x00b3, 0x1a04,    /*CS weight grayTH*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0894,    /*CC lut r  16 144*/
-	0x0022, 0x18a6,    /*CC lut r  32 160*/
-	0x0023, 0x28b8,    /*CC lut r  48 176*/
-	0x0024, 0x3ac9,    /*CC lut r  64 192*/
-	0x0025, 0x4cd9,    /*CC lut r  80 208*/
-	0x0026, 0x5ee7,    /*CC lut r  96 224*/
-	0x0027, 0x70f4,    /*CC lut r 112 240*/
-	0x0028, 0x82ff,    /*CC lut r 128 255*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x0000,  0x0000,	/*BANK 0*/
+	0x0008,  0x0088,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030,  0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00b0,  0x1010,	/*CS hg ry*/
+	0x00b1,  0x1010,	/*CS hg gc*/
+	0x00b2,  0x1010,	/*CS hg bm*/
+	0x00b3,  0x1a04,	/*CS weight grayTH*/
+	0x0000,  0x0001,	/*BANK 1*/
+	0x001f,  0x0080,	/*CC chsel strength*/
+	0x0020,  0x0000,	/*CC lut r	 0*/
+	0x0021,  0x0a84,	/*CC lut r	16 144*/
+	0x0022,  0x1498,	/*CC lut r	32 160*/
+	0x0023,  0x1eac,	/*CC lut r	48 176*/
+	0x0024,  0x2cbf,	/*CC lut r	64 192*/
+	0x0025,  0x3ad0,	/*CC lut r	80 208*/
+	0x0026,  0x4ae0,	/*CC lut r	96 224*/
+	0x0027,  0x5cf0,	/*CC lut r 112 240*/
+	0x0028,  0x70ff,	/*CC lut r 128 255*/
+	0x00ff,  0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 
@@ -205,25 +205,25 @@ static const unsigned short tune_dynamic_vt_cabcOff[] = {
 };
 
 static const unsigned short tune_standard_ui_cabcOff[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x0088,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00b0, 0x1010,    /*CS hg ry*/
-	0x00b1, 0x1010,    /*CS hg gc*/
-	0x00b2, 0x1010,    /*CS hg bm*/
-	0x00b3, 0x1804,    /*CS weight grayTH*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0890,    /*CC lut r  16 144*/
-	0x0022, 0x18a0,    /*CC lut r  32 160*/
-	0x0023, 0x30b0,    /*CC lut r  48 176*/
-	0x0024, 0x40c0,    /*CC lut r  64 192*/
-	0x0025, 0x50d0,    /*CC lut r  80 208*/
-	0x0026, 0x60e0,    /*CC lut r  96 224*/
-	0x0027, 0x70f0,    /*CC lut r 112 240*/
-	0x0028, 0x80ff,    /*CC lut r 128 255*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x0000,  0x0000,	/*BANK 0*/
+	0x0008,  0x0088,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030,  0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00b0,  0x1010,	/*CS hg ry*/
+	0x00b1,  0x1010,	/*CS hg gc*/
+	0x00b2,  0x1010,	/*CS hg bm*/
+	0x00b3,  0x1804,	/*CS weight grayTH*/
+	0x0000,  0x0001,	/*BANK 1*/
+	0x001f,  0x0080,	/*CC chsel strength*/
+	0x0020,  0x0000,	/*CC lut r	 0*/
+	0x0021,  0x0a82,	/*CC lut r	16 144*/
+	0x0022,  0x1693,	/*CC lut r	32 160*/
+	0x0023,  0x23a4,	/*CC lut r	48 176*/
+	0x0024,  0x32b6,	/*CC lut r	64 192*/
+	0x0025,  0x41c8,	/*CC lut r	80 208*/
+	0x0026,  0x50da,	/*CC lut r	96 224*/
+	0x0027,  0x60ed,	/*CC lut r 112 240*/
+	0x0028,  0x71ff,	/*CC lut r 128 255*/
+	0x00ff,  0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 
@@ -327,33 +327,33 @@ static const unsigned short tune_standard_vt_cabcOff[] = {
 };
 
 static const unsigned short tune_movie_ui_cabcOff[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x00a0,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00e1, 0xff00,    /*SCR RrCr*/
-	0x00e2, 0x00ff,    /*SCR RgCg*/
-	0x00e3, 0x00ff,    /*SCR RbCb*/
-	0x00e4, 0x00ff,    /*SCR GrMr*/
-	0x00e5, 0xff00,    /*SCR GgMg*/
-	0x00e6, 0x00ff,    /*SCR GbMb*/
-	0x00e7, 0x00ff,    /*SCR BrYr*/
-	0x00e8, 0x00ff,    /*SCR BgYg*/
-	0x00e9, 0xff00,    /*SCR BbYb*/
-	0x00ea, 0x00ff,    /*SCR KrWr*/
-	0x00eb, 0x00f7,    /*SCR KgWg*/
-	0x00ec, 0x00e8,    /*SCR KbWb*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0890,    /*CC lut r  16 144*/
-	0x0022, 0x18a0,    /*CC lut r  32 160*/
-	0x0023, 0x30b0,    /*CC lut r  48 176*/
-	0x0024, 0x40c0,    /*CC lut r  64 192*/
-	0x0025, 0x50d0,    /*CC lut r  80 208*/
-	0x0026, 0x60e0,    /*CC lut r  96 224*/
-	0x0027, 0x70f0,    /*CC lut r 112 240*/
-	0x0028, 0x80ff,    /*CC lut r 128 255*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x0000, 0x0000,	/*BANK 0*/
+	0x0008, 0x00a0,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030, 0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00e1, 0xff00,	/*SCR RrCr*/
+	0x00e2, 0x00ff,	/*SCR RgCg*/
+	0x00e3, 0x00ff,	/*SCR RbCb*/
+	0x00e4, 0x00ff,	/*SCR GrMr*/
+	0x00e5, 0xff00,	/*SCR GgMg*/
+	0x00e6, 0x00ff,	/*SCR GbMb*/
+	0x00e7, 0x00ff,	/*SCR BrYr*/
+	0x00e8, 0x00ff,	/*SCR BgYg*/
+	0x00e9, 0xff00,	/*SCR BbYb*/
+	0x00ea, 0x00ff,	/*SCR KrWr*/
+	0x00eb, 0x00f7,	/*SCR KgWg*/
+	0x00ec, 0x00e8,	/*SCR KbWb*/
+	0x0000, 0x0001,	/*BANK 1*/
+	0x001f, 0x0080,	/*CC chsel strength*/
+	0x0020, 0x0000,	/*CC lut r	 0*/
+	0x0021, 0x0a82,	/*CC lut r	16 144*/
+	0x0022, 0x1693,	/*CC lut r	32 160*/
+	0x0023, 0x23a4,	/*CC lut r	48 176*/
+	0x0024, 0x32b6,	/*CC lut r	64 192*/
+	0x0025, 0x41c8,	/*CC lut r	80 208*/
+	0x0026, 0x50da,	/*CC lut r	96 224*/
+	0x0027, 0x60ed,	/*CC lut r 112 240*/
+	0x0028, 0x71ff,	/*CC lut r 128 255*/
+	0x00ff, 0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 
@@ -453,30 +453,30 @@ static const unsigned short tune_movie_vt_cabcOff[] = {
 };
 
 static const unsigned short tune_dynamic_ui_cabcOn[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x0288,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00b0, 0x1010,    /*CS hg ry*/
-	0x00b1, 0x1010,    /*CS hg gc*/
-	0x00b2, 0x1010,    /*CS hg bm*/
-	0x00b3, 0x1a04,    /*CS weight grayTH*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0c98,    /*CC lut r  16 144*/
-	0x0022, 0x1caa,    /*CC lut r  32 160*/
-	0x0023, 0x2cbc,    /*CC lut r  48 176*/
-	0x0024, 0x3ecd,    /*CC lut r  64 192*/
-	0x0025, 0x50dc,    /*CC lut r  80 208*/
-	0x0026, 0x62e9,    /*CC lut r  96 224*/
-	0x0027, 0x74f5,    /*CC lut r 112 240*/
-	0x0028, 0x86ff,    /*CC lut r 128 255*/
-	0x0075, 0x0000,    /*CABC dgain*/
-	0x0076, 0x0000,
-	0x0077, 0x0000,
-	0x0078, 0x0000,
-	0x007f, 0x0002,    /*dynamic lcd*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x0000,  0x0000,	/*BANK 0*/
+	0x0008,  0x0288,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030,  0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00b0,  0x1010,	/*CS hg ry*/
+	0x00b1,  0x1010,	/*CS hg gc*/
+	0x00b2,  0x1010,	/*CS hg bm*/
+	0x00b3,  0x1a04,	/*CS weight grayTH*/
+	0x0000,  0x0001,	/*BANK 1*/
+	0x001f,  0x0080,	/*CC chsel strength*/
+	0x0020,  0x0000,	/*CC lut r	 0*/
+	0x0021,  0x0c8c,	/*CC lut r	16 144*/
+	0x0022,  0x17a1,	/*CC lut r	32 160*/
+	0x0023,  0x22b6,	/*CC lut r	48 176*/
+	0x0024,  0x30c9,	/*CC lut r	64 192*/
+	0x0025,  0x3fd9,	/*CC lut r	80 208*/
+	0x0026,  0x50e7,	/*CC lut r	96 224*/
+	0x0027,  0x63f4,	/*CC lut r 112 240*/
+	0x0028,  0x77ff,	/*CC lut r 128 255*/
+	0x0075,  0x0000,	/*CABC dgain*/
+	0x0076,  0x0000,
+	0x0077,  0x0000,
+	0x0078,  0x0000,
+	0x007f,  0x0002,	/*dynamic lcd*/
+	0x00ff,  0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 
@@ -604,30 +604,30 @@ static const unsigned short tune_dynamic_vt_cabcOn[] = {
 };
 
 static const unsigned short tune_standard_ui_cabcOn[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x0288,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00b0, 0x1010,    /*CS hg ry*/
-	0x00b1, 0x1010,    /*CS hg gc*/
-	0x00b2, 0x1010,    /*CS hg bm*/
-	0x00b3, 0x1804,    /*CS weight grayTH*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0c96,    /*CC lut r  16 144*/
-	0x0022, 0x1ca7,    /*CC lut r  32 160*/
-	0x0023, 0x34b8,    /*CC lut r  48 176*/
-	0x0024, 0x44c9,    /*CC lut r  64 192*/
-	0x0025, 0x54d9,    /*CC lut r  80 208*/
-	0x0026, 0x64e7,    /*CC lut r  96 224*/
-	0x0027, 0x74f4,    /*CC lut r 112 240*/
-	0x0028, 0x85ff,    /*CC lut r 128 255*/
-	0x0075, 0x0000,    /*CABC dgain*/
-	0x0076, 0x0000,
-	0x0077, 0x0000,
-	0x0078, 0x0000,
-	0x007f, 0x0002,    /*dynamic lcd*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x0000,  0x0000,	/*BANK 0*/
+	0x0008,  0x0288,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030,  0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00b0,  0x1010,	/*CS hg ry*/
+	0x00b1,  0x1010,	/*CS hg gc*/
+	0x00b2,  0x1010,	/*CS hg bm*/
+	0x00b3,  0x1804,	/*CS weight grayTH*/
+	0x0000,  0x0001,	/*BANK 1*/
+	0x001f,  0x0080,	/*CC chsel strength*/
+	0x0020,  0x0000,	/*CC lut r	 0*/
+	0x0021,  0x0c8b,	/*CC lut r	16 144*/
+	0x0022,  0x1a9d,	/*CC lut r	32 160*/
+	0x0023,  0x29af,	/*CC lut r	48 176*/
+	0x0024,  0x38c0,	/*CC lut r	64 192*/
+	0x0025,  0x48d0,	/*CC lut r	80 208*/
+	0x0026,  0x58e0,	/*CC lut r	96 224*/
+	0x0027,  0x68f0,	/*CC lut r 112 240*/
+	0x0028,  0x79ff,	/*CC lut r 128 255*/
+	0x0075,  0x0000,	/*CABC dgain*/
+	0x0076,  0x0000,
+	0x0077,  0x0000,
+	0x0078,  0x0000,
+	0x007f,  0x0002,	/*dynamic lcd*/
+	0x00ff,  0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 
@@ -755,38 +755,38 @@ static const unsigned short tune_standard_vt_cabcOn[] = {
 };
 
 static const unsigned short tune_movie_ui_cabcOn[] = {
-	0x0000, 0x0000,    /*BANK 0*/
-	0x0008, 0x02a0,    /*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
-	0x0030, 0x0000,    /*FA cs1 de8 hdr2 fa1*/
-	0x00e1, 0xff00,    /*SCR RrCr*/
-	0x00e2, 0x00ff,    /*SCR RgCg*/
-	0x00e3, 0x00ff,    /*SCR RbCb*/
-	0x00e4, 0x00ff,    /*SCR GrMr*/
-	0x00e5, 0xff00,    /*SCR GgMg*/
-	0x00e6, 0x00ff,    /*SCR GbMb*/
-	0x00e7, 0x00ff,    /*SCR BrYr*/
-	0x00e8, 0x00ff,    /*SCR BgYg*/
-	0x00e9, 0xff00,    /*SCR BbYb*/
-	0x00ea, 0x00ff,    /*SCR KrWr*/
-	0x00eb, 0x00f7,    /*SCR KgWg*/
-	0x00ec, 0x00e8,    /*SCR KbWb*/
-	0x0000, 0x0001,    /*BANK 1*/
-	0x001f, 0x0080,    /*CC chsel strength*/
-	0x0020, 0x0000,    /*CC lut r	0*/
-	0x0021, 0x0c96,    /*CC lut r  16 144*/
-	0x0022, 0x1ca7,    /*CC lut r  32 160*/
-	0x0023, 0x34b8,    /*CC lut r  48 176*/
-	0x0024, 0x44c9,    /*CC lut r  64 192*/
-	0x0025, 0x54d9,    /*CC lut r  80 208*/
-	0x0026, 0x64e7,    /*CC lut r  96 224*/
-	0x0027, 0x74f4,    /*CC lut r 112 240*/
-	0x0028, 0x85ff,    /*CC lut r 128 255*/
-	0x0075, 0x0000,    /*CABC dgain*/
+	0x0000, 0x0000,	/*BANK 0*/
+	0x0008, 0x02a0,	/*Dither8 UC4 ABC2 CP1 | CC8 MCM4 SCR2 SCC1 | CS8 DE4 DNR2 HDR1*/
+	0x0030, 0x0000,	/*FA cs1 de8 hdr2 fa1*/
+	0x00e1, 0xff00,	/*SCR RrCr*/
+	0x00e2, 0x00ff,	/*SCR RgCg*/
+	0x00e3, 0x00ff,	/*SCR RbCb*/
+	0x00e4, 0x00ff,	/*SCR GrMr*/
+	0x00e5, 0xff00,	/*SCR GgMg*/
+	0x00e6, 0x00ff,	/*SCR GbMb*/
+	0x00e7, 0x00ff,	/*SCR BrYr*/
+	0x00e8, 0x00ff,	/*SCR BgYg*/
+	0x00e9, 0xff00,	/*SCR BbYb*/
+	0x00ea, 0x00ff,	/*SCR KrWr*/
+	0x00eb, 0x00f7,	/*SCR KgWg*/
+	0x00ec, 0x00e8,	/*SCR KbWb*/
+	0x0000, 0x0001,	/*BANK 1*/
+	0x001f, 0x0080,	/*CC chsel strength*/
+	0x0020, 0x0000,	/*CC lut r	 0*/
+	0x0021, 0x0c8b,	/*CC lut r	16 144*/
+	0x0022, 0x1a9d,	/*CC lut r	32 160*/
+	0x0023, 0x29af,	/*CC lut r	48 176*/
+	0x0024, 0x38c0,	/*CC lut r	64 192*/
+	0x0025, 0x48d0,	/*CC lut r	80 208*/
+	0x0026, 0x58e0,	/*CC lut r	96 224*/
+	0x0027, 0x68f0,	/*CC lut r 112 240*/
+	0x0028, 0x79ff,	/*CC lut r 128 255*/
+	0x0075, 0x0000,	/*CABC dgain*/
 	0x0076, 0x0000,
 	0x0077, 0x0000,
 	0x0078, 0x0000,
-	0x007f, 0x0002,    /*dynamic lcd*/
-	0x00ff, 0x0000,    /*Mask Release*/
+	0x007f, 0x0002,	/*dynamic lcd*/
+	0x00ff, 0x0000,	/*Mask Release*/
 	END_SEQ, 0x0000,
 };
 

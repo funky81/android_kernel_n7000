@@ -104,12 +104,15 @@ int s3cfb_draw_logo(struct fb_info *fb)
 #else /* #ifdef RGB_BOOTSCREEN */
 	u8 *logo_virt_buf;
 
-	if (bootloaderfb) {
-		logo_virt_buf = phys_to_virt(bootloaderfb);
-		memcpy(fb->screen_base, logo_virt_buf, fb->var.yres * fb->fix.line_length);
-		printk(KERN_INFO "Bootloader sent 'bootloaderfb' : %08X\n", bootloaderfb);
+	if (bootloaderfb)
+		printk(KERN_INFO "Bootloader sent 'bootloaderfb' to Kernel Successfully : %d", bootloaderfb);
+	else {
+		bootloaderfb = BOOT_FB_BASE_ADDR;
+		printk(KERN_ERR "Fail to get 'bootloaderfb' from Bootloader. so we must set  this value as %d", bootloaderfb);
 	}
 
+	logo_virt_buf = phys_to_virt(bootloaderfb);
+	memcpy(fb->screen_base, logo_virt_buf, fb->var.yres * fb->fix.line_length);
 #endif /* #ifdef RGB_BOOTSCREEN */
 #endif
 #endif
@@ -151,7 +154,33 @@ int window_on_off_status(struct s3cfb_global *fbdev)
 }
 #endif
 
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
+void s3cfb_cpufreq_lock(struct s3cfb_global *fbdev, unsigned int lock)
+{
+	if (unlikely(!fbdev->cpufreq_level)) {
+		exynos_cpufreq_get_level(500000, &(fbdev->cpufreq_level));
+	}
+
+	if (lock) {
+		if (atomic_read(&fbdev->cpufreq_lock_cnt) == 0) {
+			exynos_cpufreq_lock(DVFS_LOCK_ID_LCD, fbdev->cpufreq_level);
+			dev_info(fbdev->dev, "[%s] CPU Freq Locked %d\n", __func__, fbdev->cpufreq_level);
+		}
+		atomic_inc(&fbdev->cpufreq_lock_cnt);
+		fbdev->cpufreq_flag = true;
+	} else {
+		if (fbdev->cpufreq_flag == true) {
+			atomic_dec(&fbdev->cpufreq_lock_cnt);
+			fbdev->cpufreq_flag = false;
+			if (atomic_read(&fbdev->cpufreq_lock_cnt) == 0) {
+				/* release Freq lock back to normal */
+				exynos_cpufreq_lock_free(DVFS_LOCK_ID_LCD);
+				dev_info(fbdev->dev, "[%s] CPU Freq lock Released Normal !!\n", __func__);
+			}
+		}
+	}
+}
+
 void s3cfb_busfreq_lock(struct s3cfb_global *fbdev, unsigned int lock)
 {
 	if (lock) {
@@ -178,7 +207,7 @@ void s3cfb_busfreq_lock(struct s3cfb_global *fbdev, unsigned int lock)
 int s3cfb_enable_window(struct s3cfb_global *fbdev, int id)
 {
 	struct s3cfb_window *win = fbdev->fb[id]->par;
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
 	int enabled_win = 0;
 #endif
 #if defined(CONFIG_CPU_EXYNOS4212) || defined(CONFIG_CPU_EXYNOS4412)
@@ -191,7 +220,7 @@ int s3cfb_enable_window(struct s3cfb_global *fbdev, int id)
 	if (!win->enabled)
 		atomic_inc(&fbdev->enabled_win);
 
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
 	enabled_win = atomic_read(&fbdev->enabled_win);
 	if (enabled_win >= 2)
 		s3cfb_busfreq_lock(fbdev, 1);
@@ -209,7 +238,7 @@ int s3cfb_enable_window(struct s3cfb_global *fbdev, int id)
 int s3cfb_disable_window(struct s3cfb_global *fbdev, int id)
 {
 	struct s3cfb_window *win = fbdev->fb[id]->par;
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
 	int enabled_win = 0;
 #endif
 #if defined(CONFIG_CPU_EXYNOS4212) || defined(CONFIG_CPU_EXYNOS4412)
@@ -225,7 +254,7 @@ int s3cfb_disable_window(struct s3cfb_global *fbdev, int id)
 		win->enabled = 1;
 		return -EFAULT;
 	} else {
-#ifdef FEATURE_BUSFREQ_LOCK
+#if defined(FEATURE_BUSFREQ_LOCK)
 		enabled_win = atomic_read(&fbdev->enabled_win);
 		if (enabled_win < 2)
 			s3cfb_busfreq_lock(fbdev, 0);
@@ -390,8 +419,7 @@ int s3cfb_map_default_video_memory(struct s3cfb_global *fbdev,
 			(unsigned int)fix->smem_start,
 			(unsigned int)fb->screen_base, fix->smem_len);
 
-	if (bootloaderfb)
-		memset(fb->screen_base, 0, fix->smem_len);
+	memset(fb->screen_base, 0, fix->smem_len);
 	win->owner = DMA_MEM_FIMD;
 
 	return 0;

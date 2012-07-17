@@ -165,6 +165,8 @@ static void s5p_mipi_dsi_long_data_wr(struct mipi_dsim_device *dsim,
 int s5p_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	unsigned int data0, unsigned int data1)
 {
+	unsigned int check_rx_ack = 0;
+
 	if (dsim->state == DSIM_STATE_ULPS) {
 		dev_err(dsim->dev, "state is ULPS.\n");
 
@@ -185,7 +187,14 @@ int s5p_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_DCS_SHORT_WRITE_PARAM:
 	case MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE:
 		s5p_mipi_dsi_wr_tx_header(dsim, data_id, data0, data1);
-		break;
+		if (check_rx_ack) {
+			/* process response func should be implemented */
+			mutex_unlock(&dsim->lock);
+			return 0;
+		} else {
+			mutex_unlock(&dsim->lock);
+			return -EINVAL;
+		}
 
 	/* general command */
 	case MIPI_DSI_COLOR_MODE_OFF:
@@ -193,7 +202,14 @@ int s5p_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_SHUTDOWN_PERIPHERAL:
 	case MIPI_DSI_TURN_ON_PERIPHERAL:
 		s5p_mipi_dsi_wr_tx_header(dsim, data_id, data0, data1);
-		break;
+		if (check_rx_ack) {
+			/* process response func should be implemented. */
+			mutex_unlock(&dsim->lock);
+			return 0;
+		} else {
+			mutex_unlock(&dsim->lock);
+			return -EINVAL;
+		}
 
 	/* packet types for video data */
 	case MIPI_DSI_V_SYNC_START:
@@ -244,16 +260,30 @@ int s5p_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 			mutex_unlock(&dsim->lock);
 			return -EAGAIN;
 		}
+
+		if (check_rx_ack) {
+			/* process response func should be implemented. */
+			mutex_unlock(&dsim->lock);
+			return 0;
+		} else {
+			mutex_unlock(&dsim->lock);
+			return -EINVAL;
+		}
 	}
-		break;
 
 	/* packet typo for video data */
 	case MIPI_DSI_PACKED_PIXEL_STREAM_16:
 	case MIPI_DSI_PACKED_PIXEL_STREAM_18:
 	case MIPI_DSI_PIXEL_STREAM_3BYTE_18:
 	case MIPI_DSI_PACKED_PIXEL_STREAM_24:
-		break;
-
+		if (check_rx_ack) {
+			/* process response func should be implemented. */
+			mutex_unlock(&dsim->lock);
+			return 0;
+		} else {
+			mutex_unlock(&dsim->lock);
+			return -EINVAL;
+		}
 	default:
 		dev_warn(dsim->dev,
 			"data id %x is not supported current DSI spec.\n",
@@ -263,7 +293,6 @@ int s5p_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 		return -EINVAL;
 	}
 
-	/* ToDo : process response func should be implemented. */
 	mutex_unlock(&dsim->lock);
 	return 0;
 }
