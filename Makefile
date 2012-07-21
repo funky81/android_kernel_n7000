@@ -194,7 +194,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= arm
 #CROSS_COMPILE	=/opt/toolchains/arm-eabi-4.4.3/bin/arm-eabi-
-CROSS_COMPILE   ?= /home/kernel/android-toolchain-eabi-4-4/bin/arm-eabi-
+#CROSS_COMPILE   ?= /home/kernel/android-toolchain-eabi-4-4/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -371,7 +371,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
                 -marm -march=armv7-a -mtune=cortex-a9 \
-                -mfpu=neon -mfloat-abi=hard \
+                -mfpu=neon \
 		-funswitch-loops -fpredictive-commoning \
                 -pipe -Wno-unused-but-set-variable
 
