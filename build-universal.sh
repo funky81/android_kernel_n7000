@@ -35,8 +35,8 @@ then
 fi
 
 #if [ ! -f $KERNELDIR/.config ]; then
-	cp -rf $KERNELDIR/arch/arm/configs/goku_aosp_defconfig .config
-	make -j$NAMBEROFCPUS goku_aosp_defconfig
+	cp -rf $KERNELDIR/arch/arm/configs/goku_defconfig .config
+	make -j$NAMBEROFCPUS goku_defconfig
 #fi
 
 . $KERNELDIR/.config
@@ -98,14 +98,10 @@ if [ -e $INITRAMFS_TMP/sbin/lvm ]; then
 fi
 
 # copy modules into initramfs
-#mkdir -p $INITRAMFS/system/lib/modules
 mkdir -p $INITRAMFS_TMP/system/lib/modules
-#mkdir -p $INITRAMFS_TMP/system/vendor/firmware
 find -name '*.ko' -exec cp -av {} $INITRAMFS_TMP/system/lib/modules/ \;
 ${CROSS_COMPILE}strip --strip-debug $INITRAMFS_TMP/system/lib/modules/*.ko
-#cp $INITRAMFS_SOURCE/vendor/firmware/* $INITRAMFS_TMP/system/vendor/firmware/
 chmod 755 $INITRAMFS_TMP/system/lib/modules/*
-#chmod 755 $INITRAMFS_TMP/system/vendor/firmware/*
 if [ $USER != "root" ]; then
 	make -j$NAMBEROFCPUS zImage CONFIG_INITRAMFS_SOURCE="$INITRAMFS_TMP" || exit 1
 else
@@ -116,19 +112,15 @@ if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 	$KERNELDIR/mkshbootimg.py $KERNELDIR/zImage $KERNELDIR/arch/arm/boot/zImage $KERNELDIR/payload.tar $KERNELDIR/recovery.tar.xz
 
 	# copy all needed to ready kernel folder.
-	cp $KERNELDIR/.config $KERNELDIR/arch/arm/configs/goku_aosp_defconfig
+	cp $KERNELDIR/.config $KERNELDIR/arch/arm/configs/goku_defconfig
 	cp $KERNELDIR/.config $KERNELDIR/READY/
 	rm $KERNELDIR/READY/boot/zImage
 	rm -rf READY/boot/system/
 	rm $KERNELDIR/READY/Kernel*
 	stat $KERNELDIR/zImage
-	GETVER=`grep 'Goku-V' arch/arm/configs/goku_aosp_defconfig | cut -c 22-33`
+	GETVER=`grep 'Goku-V' arch/arm/configs/goku_defconfig | cut -c 22-33`
 	cp $KERNELDIR/zImage $KERNELDIR/READY/boot/
 	cd $KERNELDIR/READY/boot
-	echo "Insert into update.zip"
-	mkdir -p system/lib/modules
-	mv $INITRAMFS_TMP/system/lib/modules/* system/lib/modules/
-#	cp $INITRAMFS_TMP/system/lib/modules/*.ko system/lib/modules/
 	zip -r ../Kernel-$GETVER.zip .
 
 	echo "Create Odin"
