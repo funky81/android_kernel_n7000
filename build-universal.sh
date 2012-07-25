@@ -98,10 +98,10 @@ if [ -e $INITRAMFS_TMP/sbin/lvm ]; then
 fi
 
 # copy modules into initramfs
-mkdir -p $INITRAMFS_TMP/system/lib/modules
-find -name '*.ko' -exec cp -av {} $INITRAMFS_TMP/system/lib/modules/ \;
-${CROSS_COMPILE}strip --strip-debug $INITRAMFS_TMP/system/lib/modules/*.ko
-chmod 755 $INITRAMFS_TMP/system/lib/modules/*
+mkdir -p $INITRAMFS_TMP/lib/modules
+find -name '*.ko' -exec cp -av {} $INITRAMFS_TMP/lib/modules/ \;
+${CROSS_COMPILE}strip --strip-debug $INITRAMFS_TMP/lib/modules/*.ko
+chmod 755 $INITRAMFS_TMP/lib/modules/*
 if [ $USER != "root" ]; then
 	make -j$NAMBEROFCPUS zImage CONFIG_INITRAMFS_SOURCE="$INITRAMFS_TMP" || exit 1
 else
