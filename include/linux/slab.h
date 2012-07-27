@@ -81,6 +81,9 @@
 #define SLAB_TEMPORARY		SLAB_RECLAIM_ACCOUNT	/* Objects are short-lived */
 
 /* Following flags should only be used by allocator specific flags */
+#define SLAB_ALLOC_PRIVATE     0x000000ffUL
+
+/* Following flags should only be used by allocator specific flags */
 #define SLAB_ALLOC_PRIVATE	0x000000ffUL
 
 /*
