@@ -317,6 +317,20 @@ dhd_wl_ioctl(dhd_pub_t *dhd_pub, int ifindex, wl_ioctl_t *ioc, void *buf, int le
 		dhd_os_check_hang(dhd_pub, ifindex, ret);
 
 	dhd_os_proto_unblock(dhd_pub);
+#ifdef CUSTOMER_HW_SAMSUNG
+	if (ret < 0) {
+		if (ioc->cmd == WLC_GET_VAR)
+			DHD_ERROR(("%s: WLC_GET_VAR: %s, ret = %d\n",
+						__FUNCTION__, (char *)ioc->buf, ret));
+		else if (ioc->cmd == WLC_SET_VAR)
+			DHD_ERROR(("%s: WLC_SET_VAR: %s, ret = %d\n",
+						__FUNCTION__, (char *)ioc->buf, ret));
+		else
+			DHD_ERROR(("%s: WLC_IOCTL: cmd: %d, ret = %d\n",
+						__FUNCTION__, ioc->cmd, ret));
+	}
+#endif /* CUSTOMER_HW_SAMSUNG */
+
 	return ret;
 }
 
@@ -1914,7 +1928,6 @@ dhd_pno_enable(dhd_pub_t *dhd, int pfn_enabled)
 		return (ret);
 
 	memset(iovbuf, 0, sizeof(iovbuf));
-
 	if ((pfn_enabled) && (dhd_is_associated(dhd, NULL, NULL) == TRUE)) {
 		DHD_ERROR(("%s pno is NOT enable : called in assoc mode , ignore\n", __FUNCTION__));
 		return ret;
