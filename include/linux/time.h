@@ -258,6 +258,10 @@ static __always_inline void timespec_add_ns(struct timespec *a, u64 ns)
 }
 #endif /* __KERNEL__ */
 
+#define FD_SET(fd,fdsetp)  __FD_SET(fd,fdsetp)
+#define FD_CLR(fd,fdsetp)  __FD_CLR(fd,fdsetp)
+#define FD_ISSET(fd,fdsetp)  __FD_ISSET(fd,fdsetp)
+
 /*
  * Names of the interval timers, and structure
  * defining a timer setting:
