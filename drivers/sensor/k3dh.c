@@ -38,6 +38,7 @@
  * and output data rate set to 400Hz.  Output is via a ioctl read call.
  */
 #define DEFAULT_POWER_ON_SETTING (ODR400 | ENABLE_ALL_AXES)
+#define ACC_DEV_NAME "accelerometer"
 #define ACC_DEV_MAJOR 241
 
 #define CALIBRATION_FILE_PATH	"/efs/calibration_data"
@@ -343,45 +344,65 @@ static long k3dh_ioctl(struct file *file,
 	struct k3dh_data *data = container_of(file->private_data,
 		struct k3dh_data, k3dh_device);
 	s64 delay_ns;
-	int enable = 0;
+	int enable = 1;
+
+#if 0
+       if (copy_from_user(&enable, (void __user *)arg,sizeof(enable)))
+		return -EFAULT;
+	k3dh_infomsg("opened = %d, enable = %d\n",atomic_read(&data->opened), enable);
+        if (enable)
+                        err = k3dh_accel_enable(data);
+                else
+                        err = k3dh_accel_disable(data);
+#endif
 
 	/* cmd mapping */
 	switch (cmd) {
+#if 1
 	case K3DH_IOCTL_SET_ENABLE:
 		if (copy_from_user(&enable, (void __user *)arg,
 					sizeof(enable)))
 			return -EFAULT;
-		k3dh_infomsg("opened = %d, enable = %d\n",
-			atomic_read(&data->opened), enable);
+		k3dh_infomsg("opened = %d, enable = %d",atomic_read(&data->opened), enable);
 		if (enable)
 			err = k3dh_accel_enable(data);
 		else
 			err = k3dh_accel_disable(data);
 		break;
+#endif
 	case K3DH_IOCTL_SET_DELAY:
+k3dh_infomsg("delay");
 		if (copy_from_user(&delay_ns, (void __user *)arg,
 					sizeof(delay_ns)))
 			return -EFAULT;
 		err = k3dh_set_delay(data, delay_ns);
+k3dh_infomsg("end delay set");
 		break;
 	case K3DH_IOCTL_GET_DELAY:
+k3dh_infomsg("get delay");
 		delay_ns = k3dh_get_delay(data);
 		if (put_user(delay_ns, (s64 __user *)arg))
 			return -EFAULT;
+k3dh_infomsg("end delay");
 		break;
 	case K3DH_IOCTL_READ_ACCEL_XYZ:
+k3dh_infomsg("read accel");
 		err = k3dh_read_accel_xyz(data, &data->acc_xyz);
 		if (err)
 			break;
-		if (copy_to_user((void __user *)arg,
-			&data->acc_xyz, sizeof(data->acc_xyz)))
+		if (copy_to_user((void __user *)arg,&data->acc_xyz, sizeof(data->acc_xyz))){ //this one for touchwiz
+k3dh_infomsg("K3DH_IOCTL_READ_ACCEL_XYZ before");
+//		if (copy_to_user((void __user *)arg, &data, sizeof(data))){ //enable this to enable cm9
+k3dh_infomsg("K3DH_IOCTL_READ_ACCEL_XYZ after");
 			return -EFAULT;
+		}
+k3dh_infomsg("selesai read accel");
 		break;
 	default:
 		err = -EINVAL;
 		break;
 	}
-
+k3dh_infomsg("keluar");
 	return err;
 }
 
