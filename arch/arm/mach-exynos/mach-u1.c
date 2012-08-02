@@ -5661,6 +5661,8 @@ static struct i2c_board_info i2c_devs0[] __initdata = {
 };
 
 #ifdef CONFIG_S3C_DEV_I2C1
+static struct k3dh_platform_data k3dh_data = {
+};
 /* I2C1 */
 static struct i2c_board_info i2c_devs1[] __initdata = {
 	{
@@ -5669,6 +5671,7 @@ static struct i2c_board_info i2c_devs1[] __initdata = {
 	},
 	{
 		I2C_BOARD_INFO("k3dh", 0x19),
+		.platform_data = &k3dh_data,
 	},
 #ifdef CONFIG_MACH_Q1_BD
 	{
