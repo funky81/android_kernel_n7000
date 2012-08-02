@@ -713,17 +713,4 @@ static inline struct dst_entry *sctp_transport_dst_check(struct sctp_transport *
 	return t->dst;
 }
 
-/* The cookie is always 0 since this is how it's used in the
- * pmtu code.
- */
-static inline struct dst_entry *sctp_transport_dst_check(struct sctp_transport *t)
-{
-	if (t->dst && !dst_check(t->dst, 0)) {
-		dst_release(t->dst);
-		t->dst = NULL;
-	}
-
-	return t->dst;
-}
-
 #endif /* __net_sctp_h__ */
