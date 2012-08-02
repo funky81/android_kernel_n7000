@@ -75,7 +75,7 @@ struct k3dh_data {
 static int k3dh_read_accel_raw_xyz(struct k3dh_data *k3dh,
 				struct k3dh_acc *acc)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err;
 	s8 reg = OUT_X_L | AC; /* read from OUT_X_L to OUT_Z_H by auto-inc */
 	u8 acc_data[6];
@@ -109,7 +109,7 @@ k3dh_infomsg("start");
 static int k3dh_read_accel_xyz(struct k3dh_data *k3dh,
 				struct k3dh_acc *acc)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err = 0;
 
 	mutex_lock(&k3dh->read_lock);
@@ -162,7 +162,7 @@ static int k3dh_open_calibration(struct k3dh_data *k3dh)
 
 static int k3dh_do_calibrate(struct device *dev, bool do_calib)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	struct k3dh_data *k3dh = dev_get_drvdata(dev);
 	struct k3dh_acc data = { 0, };
 	struct file *cal_filp = NULL;
@@ -228,7 +228,7 @@ k3dh_infomsg("start");
 /*  open command for K3DH device file  */
 static int k3dh_open(struct inode *inode, struct file *file)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err = 0;
 	struct k3dh_data *k3dh = container_of(file->private_data,
 						struct k3dh_data,
@@ -260,7 +260,7 @@ k3dh_infomsg("start");
 /*  release command for K3DH device file */
 static int k3dh_close(struct inode *inode, struct file *file)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err = 0;
 	struct k3dh_data *k3dh = file->private_data;
 
@@ -276,7 +276,7 @@ k3dh_infomsg("start");
 
 static s64 k3dh_get_delay(struct k3dh_data *k3dh)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int i;
 	u8 odr;
 	s64 delay = -1;
@@ -293,7 +293,7 @@ k3dh_infomsg("start");
 
 static int k3dh_set_delay(struct k3dh_data *k3dh, s64 delay_ns)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int odr_value = ODR1;
 	int res = 0;
 	int i;
@@ -330,7 +330,7 @@ k3dh_infomsg("start");
 static long k3dh_ioctl(struct file *file,
 		       unsigned int cmd, unsigned long arg)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err = 0;
 	struct k3dh_data *k3dh = file->private_data;
 	struct k3dh_acc data;
@@ -366,7 +366,7 @@ k3dh_infomsg("start");
 
 static int k3dh_suspend(struct device *dev)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int res = 0;
 	struct k3dh_data *k3dh = dev_get_drvdata(dev);
 
@@ -379,7 +379,7 @@ k3dh_infomsg("start");
 
 static int k3dh_resume(struct device *dev)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int res = 0;
 	struct k3dh_data *k3dh = dev_get_drvdata(dev);
 
@@ -405,7 +405,7 @@ static const struct file_operations k3dh_fops = {
 static ssize_t k3dh_fs_read(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	struct k3dh_data *k3dh = dev_get_drvdata(dev);
 	struct k3dh_acc data = { 0, };
 	int err = 0;
@@ -446,7 +446,7 @@ static ssize_t k3dh_calibration_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int err;
 	struct k3dh_data *k3dh = dev_get_drvdata(dev);
 
@@ -465,7 +465,7 @@ static ssize_t k3dh_calibration_store(struct device *dev,
 					struct device_attribute *attr,
 					const char *buf, size_t count)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	bool do_calib;
 	int err;
 
@@ -493,7 +493,7 @@ static DEVICE_ATTR(acc_file, 0664, k3dh_fs_read, NULL);
 
 void k3dh_shutdown(struct i2c_client *client)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	int res = 0;
 	struct k3dh_data *k3dh = i2c_get_clientdata(client);
 
@@ -506,7 +506,7 @@ k3dh_infomsg("start");
 static int k3dh_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	struct k3dh_data *k3dh;
 	struct device *dev_t, *dev_cal;
 	struct k3dh_platform_data *pdata = client->dev.platform_data;
@@ -615,7 +615,7 @@ exit:
 
 static int k3dh_remove(struct i2c_client *client)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	struct k3dh_data *k3dh = i2c_get_clientdata(client);
 
 	device_destroy(sec_class, 0);
@@ -649,13 +649,13 @@ static struct i2c_driver k3dh_driver = {
 
 static int __init k3dh_init(void)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	return i2c_add_driver(&k3dh_driver);
 }
 
 static void __exit k3dh_exit(void)
 {
-k3dh_infomsg("start");
+//k3dh_infomsg("start");
 	i2c_del_driver(&k3dh_driver);
 }
 
