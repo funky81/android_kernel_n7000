@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Linux/arm 3.0.38 Kernel Configuration
+# Linux/arm 3.0.39 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_HAVE_PWM=y
@@ -184,9 +184,8 @@ CONFIG_IOSCHED_VR=y
 CONFIG_IOSCHED_SIO=y
 # CONFIG_DEFAULT_DEADLINE is not set
 # CONFIG_DEFAULT_CFQ is not set
-# CONFIG_DEFAULT_SIO is not set
-CONFIG_DEFAULT_VR=y
 CONFIG_DEFAULT_SIO=y
+# CONFIG_DEFAULT_VR is not set
 # CONFIG_DEFAULT_NOOP is not set
 CONFIG_DEFAULT_IOSCHED="sio"
 # CONFIG_INLINE_SPIN_TRYLOCK is not set
