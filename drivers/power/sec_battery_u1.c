@@ -2970,7 +2970,7 @@ static int sec_bat_create_attrs(struct device *dev)
 	return rc;
 }
 
-static int sec_bat_is_charging(struct sec_bat_info *info)
+/*static int sec_bat_is_charging(struct sec_bat_info *info)
 {
 	struct power_supply *psy = get_power_supply_by_name(info->charger_name);
 	union power_supply_propval value;
@@ -2989,7 +2989,7 @@ static int sec_bat_is_charging(struct sec_bat_info *info)
 	}
 
 	return value.intval;
-}
+}*/
 
 static int sec_bat_read_proc(char *buf, char **start,
 			     off_t offset, int count, int *eof, void *data)

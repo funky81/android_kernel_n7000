@@ -754,11 +754,11 @@ static int s5k5bafx_set_sensor_mode(struct v4l2_subdev *sd,
 	return 0;
 }
 
-static int s5k5bafx_g_fmt(struct v4l2_subdev *sd, struct v4l2_format *fmt)
+/*static int s5k5bafx_g_fmt(struct v4l2_subdev *sd, struct v4l2_format *fmt)
 {
 	cam_dbg("E\n");
 	return 0;
-}
+}*/
 
 static int s5k5bafx_enum_framesizes(struct v4l2_subdev *sd, \
 					struct v4l2_frmsizeenum *fsize)
@@ -803,14 +803,14 @@ static int s5k5bafx_enum_frameintervals(struct v4l2_subdev *sd,
 }
 #endif
 
-static int s5k5bafx_try_fmt(struct v4l2_subdev *sd, struct v4l2_format *fmt)
+/*static int s5k5bafx_try_fmt(struct v4l2_subdev *sd, struct v4l2_format *fmt)
 {
 	int err = 0;
 
 	cam_dbg("E\n");
 
 	return err;
-}
+}*/
 
 static int s5k5bafx_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *ffmt)
 {
