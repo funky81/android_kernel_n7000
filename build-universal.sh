@@ -5,6 +5,7 @@ export KERNELDIR=`readlink -f .`
 export PARENT_DIR=`readlink -f ..`
 export INITRAMFS_SOURCE=`readlink -f /root/initramfs/n7000-universal`
 
+
 # kernel
 export ARCH=arm
 export EXTRA_AFLAGS=-mfpu=neon

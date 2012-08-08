@@ -345,7 +345,7 @@ DEPMOD		= /sbin/depmod
 KALLSYMS	= scripts/kallsyms
 PERL		= perl
 CHECK		= sparse
-
+ARM_FLAGS       = -marm -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 CFLAGS_MODULE   =
@@ -373,7 +373,8 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
                 -marm -march=armv7-a -mtune=cortex-a9 \
                 -mfpu=neon \
 		-funswitch-loops -fpredictive-commoning \
-                -pipe -Wno-unused-but-set-variable
+                -pipe -Wno-unused-but-set-variable \
+                $(ARM_FLAGS)
 
                 #-funswitch-loops -fpredictive-commoning \
                 #-fgcse-after-reload -fipa-cp-clone \
