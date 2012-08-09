@@ -191,10 +191,11 @@
 static struct wacom_g5_callbacks *wacom_callbacks;
 #endif /* CONFIG_EPEN_WACOM_G5SP */
 
-#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
+#if 0
+//#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
 #include <linux/i2c/touchkey_i2c.h>
+//#endif
 #endif
-
 
 #if defined(CONFIG_TDMB) || defined(CONFIG_TDMB_MODULE)
 #include <mach/tdmb_pdata.h>
@@ -5545,10 +5546,8 @@ static void p6_wacom_register_callbacks(struct wacom_g5_callbacks *cb)
 #endif /* CONFIG_EPEN_WACOM_G5SP */
 
 
-#ifdef CONFIG_S3C_DEV_I2C8_EMUL
-static struct i2c_board_info i2c_devs8_emul[];
-#endif
-#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
+#if 0
+//#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
 static void touchkey_init_hw(void)
 {
 	gpio_request(GPIO_3_TOUCH_INT, "3_TOUCH_INT");
@@ -5649,8 +5648,8 @@ static struct touchkey_platform_data touchkey_pdata = {
 	.power_on = touchkey_power_on,
 	.led_power_on = touchkey_led_power_on,
 };
-#endif /*CONFIG_KEYBOARD_CYPRESS_TOUCH*/
-
+//#endif /*CONFIG_KEYBOARD_CYPRESS_TOUCH*/
+#endif
 
 
 #ifdef CONFIG_I2C_S3C2410
@@ -5799,12 +5798,9 @@ struct platform_device s3c_device_i2c8 = {
 
 /* I2C8 */
 static struct i2c_board_info i2c_devs8_emul[] = {
-#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
-	{
-		I2C_BOARD_INFO("sec_touchkey", 0x20),
-		.platform_data = &touchkey_pdata,
-	},
-#endif
+        {
+                I2C_BOARD_INFO("sec_touchkey", 0x20),
+        },
 };
 #endif
 
@@ -7239,10 +7235,9 @@ static void __init smdkc210_machine_init(void)
 			ARRAY_SIZE(tuna_i2c15_boardinfo));
 #endif
 #ifdef CONFIG_S3C_DEV_I2C8_EMUL
-#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH
-	touchkey_init_hw();
-#endif
-	i2c_register_board_info(8, i2c_devs8_emul, ARRAY_SIZE(i2c_devs8_emul));
+        i2c_register_board_info(8, i2c_devs8_emul, ARRAY_SIZE(i2c_devs8_emul));
+        gpio_request(GPIO_3_TOUCH_INT, "sec_touchkey");
+        s5p_register_gpio_interrupt(GPIO_3_TOUCH_INT);
 #endif
 #ifdef CONFIG_S3C_DEV_I2C9_EMUL
 	i2c_register_board_info(9, i2c_devs9_emul, ARRAY_SIZE(i2c_devs9_emul));
