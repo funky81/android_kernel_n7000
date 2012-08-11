@@ -706,6 +706,7 @@ static void fdiag_debugfs_init(void)
 	debugfs_create_file("status", 0444, dent_diag, 0, &debug_fdiag_ops);
 }
 #else
+struct dentry *dent_diag;
 static void fdiag_debugfs_init(void)
 {
 	return;

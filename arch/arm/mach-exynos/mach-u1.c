@@ -5281,7 +5281,7 @@ static void mxt540e_power_on_oled(void)
 
 	gpio_free(GPIO_OLED_DET);
 
-	printk(KERN_INFO "[TSP] %s\n", __func__);
+	//printk(KERN_INFO "[TSP] %s\n", __func__);
 }
 
 static void mxt540e_power_off_oled(void)
@@ -5296,7 +5296,7 @@ static void mxt540e_power_off_oled(void)
 
 	gpio_free(GPIO_OLED_DET);
 
-	printk(KERN_INFO "[TSP] %s\n", __func__);
+	//printk(KERN_INFO "[TSP] %s\n", __func__);
 }
 
 /*
