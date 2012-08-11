@@ -8792,6 +8792,7 @@ s32 wl_cfg80211_set_p2p_ps(struct net_device *net, char* buf, int len)
 s32 wl_cfg80211_set_wps_p2p_ie(struct net_device *net, char *buf, int len,
 	enum wl_management_type type)
 {
+	struct ether_addr primary_mac;
 	struct wl_priv *wl;
 	struct net_device *ndev = NULL;
 	s32 ret = 0;
@@ -8849,7 +8850,7 @@ s32 wl_cfg80211_set_wps_p2p_ie(struct net_device *net, char *buf, int len,
 		if (pktflag)
 			ret = wl_cfgp2p_set_management_ie(wl, ndev, bssidx, pktflag, buf, len);
 	}
-
+exit:
 	return ret;
 }
 
