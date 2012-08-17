@@ -1179,7 +1179,7 @@ static irqreturn_t mxt540e_irq_thread(int irq, void *ptr)
 	u8 object_type, instance;
 
 	if (data->cpu_freq_lock == -1)
-		exynos_cpufreq_get_level(500000, &data->cpu_freq_lock);
+		exynos_cpufreq_get_level(1000000, &data->cpu_freq_lock);
 
 	do {
 		touch_message_flag = 0;
