@@ -320,7 +320,6 @@ printk(KERN_ERR "[TouchKey] i2read enabled: %d,probe: %d",touchkey_enable,touchk
 		       __LINE__);
 		return -ENODEV;
 	}
-
 	while (retry--) {
 		msg->addr = touchkey_driver->client->addr;
 		msg->flags = I2C_M_RD;
@@ -330,6 +329,7 @@ printk(KERN_ERR "[TouchKey] i2read enabled: %d,probe: %d",touchkey_enable,touchk
 
 		if (err >= 0)
 			return 0;
+		printk(KERN_ERR "[TouchKey] after i2read enabled: %d,probe: %d",touchkey_enable,touchkey_probe);
 		printk(KERN_ERR "[TouchKey] %s %d i2c transfer error\n",
 		       __func__, __LINE__);
 		mdelay(10);
@@ -362,6 +362,7 @@ printk(KERN_ERR "[TouchKey] touchkey_enable %d,touchkey_probe %d",touchkey_enabl
 		if (err >= 0)
 			return 0;
 
+		printk(KERN_ERR "[TouchKey] after i2read enabled: %d,probe: %d",touchkey_enable,touchkey_probe);
 		printk(KERN_DEBUG "[TouchKey] %s %d i2c transfer error\n",
 		       __func__, __LINE__);
 		mdelay(10);
@@ -460,18 +461,18 @@ static ssize_t touchkey_raw_data0_show(struct device *dev,
 	u8 data[26] = { 0, };
 	int ret;
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 26);
 #if defined(CONFIG_TARGET_LOCALE_NA)
-	printk(KERN_DEBUG "called %s data[18] =%d,data[19] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[18] =%d,data[19] = %d\n", __func__,
 	       data[18], data[19]);
 	raw_data0 = ((0x00FF & data[18]) << 8) | data[19];
 #elif defined(CONFIG_MACH_Q1_BD)
-	printk(KERN_DEBUG "called %s data[16] =%d,data[17] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[16] =%d,data[17] = %d\n", __func__,
 	       data[16], data[17]);
 	raw_data0 = ((0x00FF & data[14]) << 8) | data[15];
 #else
-	printk(KERN_DEBUG "called %s data[18] =%d,data[19] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[18] =%d,data[19] = %d\n", __func__,
 	       data[10], data[11]);
 	raw_data0 = ((0x00FF & data[10]) << 8) | data[11];
 #endif
@@ -484,18 +485,18 @@ static ssize_t touchkey_raw_data1_show(struct device *dev,
 	u8 data[26] = { 0, };
 	int ret;
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 26);
 #if defined(CONFIG_TARGET_LOCALE_NA)
-	printk(KERN_DEBUG "called %s data[20] =%d,data[21] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[20] =%d,data[21] = %d\n", __func__,
 	       data[20], data[21]);
 	raw_data1 = ((0x00FF & data[20]) << 8) | data[21];
 #elif defined(CONFIG_MACH_Q1_BD)
-	printk(KERN_DEBUG "called %s data[14] =%d,data[15] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[14] =%d,data[15] = %d\n", __func__,
 	       data[14], data[15]);
 	raw_data1 = ((0x00FF & data[16]) << 8) | data[17];
 #else
-	printk(KERN_DEBUG "called %s data[20] =%d,data[21] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[20] =%d,data[21] = %d\n", __func__,
 	       data[12], data[13]);
 	raw_data1 = ((0x00FF & data[12]) << 8) | data[13];
 #endif				/* CONFIG_TARGET_LOCALE_NA */
@@ -508,14 +509,14 @@ static ssize_t touchkey_raw_data2_show(struct device *dev,
 	u8 data[26] = { 0, };
 	int ret;
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 26);
 #if defined(CONFIG_TARGET_LOCALE_NA)
-	printk(KERN_DEBUG "called %s data[22] =%d,data[23] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[22] =%d,data[23] = %d\n", __func__,
 	       data[22], data[23]);
 	raw_data2 = ((0x00FF & data[22]) << 8) | data[23];
 #else
-	printk(KERN_DEBUG "called %s data[22] =%d,data[23] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[22] =%d,data[23] = %d\n", __func__,
 	       data[14], data[15]);
 	raw_data2 = ((0x00FF & data[14]) << 8) | data[15];
 #endif				/* CONFIG_TARGET_LOCALE_NA */
@@ -528,14 +529,14 @@ static ssize_t touchkey_raw_data3_show(struct device *dev,
 	u8 data[26] = { 0, };
 	int ret;
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 26);
 #if defined(CONFIG_TARGET_LOCALE_NA)
-	printk(KERN_DEBUG "called %s data[24] =%d,data[25] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[24] =%d,data[25] = %d\n", __func__,
 	       data[24], data[25]);
 	raw_data3 = ((0x00FF & data[24]) << 8) | data[25];
 #else
-	printk(KERN_DEBUG "called %s data[24] =%d,data[25] = %d\n", __func__,
+	printk(KERN_DEBUG "[TouchKey] called %s data[24] =%d,data[25] = %d\n", __func__,
 	       data[16], data[17]);
 	raw_data3 = ((0x00FF & data[16]) << 8) | data[17];
 #endif				/* CONFIG_TARGET_LOCALE_NA */
@@ -552,9 +553,9 @@ static ssize_t touchkey_idac0_show(struct device *dev,
 		return 0;
 #endif
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 10);
-	printk(KERN_DEBUG "called %s data[6] =%d\n", __func__, data[6]);
+	printk(KERN_DEBUG "[TouchKey] called %s data[6] =%d\n", __func__, data[6]);
 	idac0 = data[6];
 	return sprintf(buf, "%d\n", idac0);
 }
@@ -569,9 +570,9 @@ static ssize_t touchkey_idac1_show(struct device *dev,
 		return 0;
 #endif
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 10);
-	printk(KERN_DEBUG "called %s data[7] = %d\n", __func__, data[7]);
+	printk(KERN_DEBUG "[TouchKey] called %s data[7] = %d\n", __func__, data[7]);
 	idac1 = data[7];
 	return sprintf(buf, "%d\n", idac1);
 }
@@ -586,9 +587,9 @@ static ssize_t touchkey_idac2_show(struct device *dev,
 		return 0;
 #endif
 
-	printk(KERN_DEBUG "called %s\n", __func__);
+	printk(KERN_DEBUG "[TouchKey] called %s\n", __func__);
 	ret = i2c_touchkey_read(KEYCODE_REG, data, 10);
-	printk(KERN_DEBUG "called %s data[8] =%d\n", __func__, data[8]);
+	printk(KERN_DEBUG "[TouchKey] called %s data[8] =%d\n", __func__, data[8]);
 	idac2 = data[8];
 	return sprintf(buf, "%d\n", idac2);
 }
@@ -826,7 +827,7 @@ void touchkey_work_func(struct work_struct *p)
 	set_touchkey_debug('a');
 
 #ifdef CONFIG_CPU_FREQ
-	/* set_dvfs_target_level(LEV_800MHZ); */
+	 set_dvfs_target_level(LEV_800MHZ);
 #endif
 
 	retry = 3;
@@ -902,10 +903,10 @@ void touchkey_work_func(struct work_struct *p)
 	}
 
 	if (keycode_type == 1)
-		printk(KERN_DEBUG "search key sensitivity = %d\n",
+		printk(KERN_DEBUG "[TouchKey] search key sensitivity = %d\n",
 		       search_sensitivity);
 	if (keycode_type == 2)
-		printk(KERN_DEBUG "back key sensitivity = %d\n",
+		printk(KERN_DEBUG "[TouchKey] back key sensitivity = %d\n",
 		       back_sensitivity);
 #ifdef CONFIG_TARGET_LOCALE_NA
 	if (keycode_type == 3)
@@ -943,6 +944,7 @@ static irqreturn_t touchkey_interrupt(int irq, void *dummy)
 #ifdef CONFIG_HAS_EARLYSUSPEND
 static int sec_touchkey_early_suspend(struct early_suspend *h)
 {
+printk(KERN_ERR "[TouchKey] sec_touchkey_early_suspend 1");
 	int ret;
 	int i;
 
@@ -990,7 +992,7 @@ static int sec_touchkey_late_resume(struct early_suspend *h)
 #ifdef TEST_JIG_MODE
 	unsigned char get_touch = 0x40;
 #endif
-
+printk(KERN_ERR "[TouchKey] sec_touchkey_early_resume 1");
 	set_touchkey_debug('R');
 	printk(KERN_DEBUG "[TouchKey] sec_touchkey_late_resume\n");
 
@@ -1084,7 +1086,6 @@ printk(KERN_DEBUG "[TouchKey] deactivate\n");
             printk(KERN_DEBUG "[TouchKey] touchkey clear wake_lock\n");
             wake_unlock(&bln_wake_lock);
         }
-
         touchkey_enable = 0;
 }
 
@@ -1115,14 +1116,28 @@ static struct early_suspend bln_suspend_data = {
 
 static void enable_touchkey_backlights(void){
         int status = 0x10;
+	int errnum;
         printk(KERN_ERR "[TouchKey] enable LED from BLN app\n");
-        i2c_touchkey_write((u8 *)&status, 1 );
+        errnum=i2c_touchkey_write((u8 *)&status, 1 );
+printk (KERN_ERR "Errnum - enable %d",errnum);
+	if (errnum == -ENODEV){
+	    printk(KERN_ERR "error@enable");
+            touchled_cmd_reversed = 1;
+	}
+//	touchkey_led_status = status;
 }
 
 static void disable_touchkey_backlights(void){
         int status = 0x20;
+	int errnum;
         printk(KERN_ERR "[TouchKey] disable LED from BLN app\n");
-        i2c_touchkey_write((u8 *)&status, 1 );
+        errnum=i2c_touchkey_write((u8 *)&status, 1 );
+printk (KERN_ERR "Errnum - enable %d",errnum);
+        if (errnum == -ENODEV){
+	    printk(KERN_ERR "error@disable");
+            touchled_cmd_reversed = 1;
+	}
+//        touchkey_led_status = status;
 }
 
 static void enable_led_notification(void){
@@ -1132,6 +1147,7 @@ printk(KERN_DEBUG "[TouchKey] 2. enable_led_notification - %d - %d - %d\n",bln_e
             if( touchkey_enable != 1 ){
 printk(KERN_DEBUG "[TouchKey] 3. enable_led_notification - %d - %d - %d\n",bln_enabled,touchkey_enable,bln_suspended);
                 if( bln_suspended ){
+printk(KERN_DEBUG "[TouchKey] 4");
                     touchkey_activate();
                 }
             }
@@ -1191,7 +1207,7 @@ static ssize_t bln_status_write( struct device *dev, struct device_attribute *at
 }
 
 static ssize_t notification_led_status_read( struct device *dev, struct device_attribute *attr, char *buf ){
-printk(KERN_DEBUG "[TouchKey] led status read %d - d",bln_enabled,BLN_ongoing);
+printk(KERN_DEBUG "[TouchKey] led status read %d - %d",bln_enabled,BLN_ongoing);
         return sprintf(buf,"%u\n", (BLN_ongoing ? 1 : 0 ));
 }
 
