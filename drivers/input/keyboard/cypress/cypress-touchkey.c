@@ -431,13 +431,13 @@ static void led_fadeout_process(struct work_struct *work)
 	int i, status = 0x20;
 	cancel_work_sync(&led_fadein_work);
 	for (i = touchkey_voltage; i >= 2500; i -= 50) {
-		change_touch_key_led_voltage(i);
+		//change_touch_key_led_voltage(i);
 		msleep(50);
 	}
 	i2c_touchkey_write((u8 *)&status, 1);
 	//restore the voltage after turning the led off
 	msleep(50);
-	change_touch_key_led_voltage(touchkey_voltage);
+	//change_touch_key_led_voltage(touchkey_voltage);
 }
 
 static void led_fadein_process(struct work_struct *work)
@@ -446,15 +446,15 @@ static void led_fadein_process(struct work_struct *work)
 	cancel_work_sync(&led_fadeout_work);
 	if (led_fadein) {
 		if (!mutex_trylock(&led_fadein_mutex)) return;
-		change_touch_key_led_voltage(2500);
+		//change_touch_key_led_voltage(2500);
 		i2c_touchkey_write((u8 *)&status, 1);
-		for (i = 2500; i <= touchkey_voltage; i += 50) {
+		/*for (i = 2500; i <= touchkey_voltage; i += 50) {
 			change_touch_key_led_voltage(i);
 			msleep(50);
-		}
+		}*/
 		mutex_unlock(&led_fadein_mutex);
 	} else {
-		change_touch_key_led_voltage(touchkey_voltage);
+		//change_touch_key_led_voltage(touchkey_voltage);
 		i2c_touchkey_write((u8 *)&status, 1);
 	}
 }
@@ -1053,6 +1053,9 @@ static void touchkey_activate(void) {
 	mutex_unlock(&touchkey_enable_mutex);
 }
 
+/**
+ * Turn off Touchkey completly
+ */
 static void touchkey_deactivate(void) {
 	printk(KERN_ERR "%s called",__func__);
 	mutex_lock(&touchkey_enable_mutex);
@@ -1269,18 +1272,23 @@ static void bl_off(struct work_struct *bl_off_work)
 {
 	printk(KERN_ERR "[TouchKey]  Called %s",__func__);
 	/* do nothing if there is an active notification */
-	if (BLN_ongoing == 1 || touchkey_enable != 1)
+	if (BLN_ongoing == 1 || touchkey_enable != 1){
+		printk(KERN_ERR "[TouchKey] Called %s masuk ke if",__func__);
 		return;
-
+	}
+	printk(KERN_ERR "[TouchKey] Called %s,led timeout:%d,notification timeout:%d",__func__,led_timeout,notification_timeout);
 	/* we have timed out, turn the lights off */
-	schedule_work(&led_fadeout_work);
+	//schedule_work(&led_fadeout_work);
+
+	msleep(1000*led_timeout);
+	disable_touchkey_backlights();
 
 	return;
 }
 
 static void handle_led_timeout(unsigned long data)
 {
-	printk(KERN_ERR "[TouchKey]  Called %s",__func__);
+	printk(KERN_ERR "[TouchKey] Called %s,remain time left %d,notification_timeout:%d",__func__,led_timeout,notification_timeout);
 	/* we cannot call the timeout directly as it causes a kernel spinlock BUG, schedule it instead */
 	schedule_work(&bl_off_work);
 }
@@ -1364,7 +1372,7 @@ static void breathe(struct work_struct *notification_off_work)
 			data = breathing_steps[breathing_step_idx].start;
 		}
 	}
-
+	printk(KERN_ERR "change touch led from %s",__func__);
 	change_touch_key_led_voltage(data);
 	mod_timer(&breathing_timer, jiffies + msecs_to_jiffies(breathing_steps[breathing_step_idx].period));
 }
@@ -1685,7 +1693,8 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 	setup_timer(&notification_timer, handle_notification_timeout, 0);
 	setup_timer(&breathing_timer, handle_breathe, 0);
 
-	led_timeout = 0;
+	printk(KERN_ERR "Called %s where led timeout is %d",__func__,led_timeout);
+	//led_timeout = 0;
 	reset_breathing_steps();
 
 	/* wake lock for BLN */
@@ -2317,6 +2326,12 @@ static int __init touchkey_init(void)
 	}
 #if defined(CONFIG_TARGET_LOCALE_NAATT) \
 || defined(CONFIG_TARGET_LOCALE_NA) || defined(CONFIG_MACH_Q1_BD)
+	if (device_create_file(sec_touchkey,
+		&dev_attr_led_timeout) < 0) {
+		pr_err("[TouchKey] Failed to create device file(%s)!\n",
+		       dev_attr_touchkey_raw_data0.attr.name);
+	}
+
 	if (device_create_file(sec_touchkey,
 		&dev_attr_touchkey_raw_data0) < 0) {
 		pr_err("[TouchKey] Failed to create device file(%s)!\n",
