@@ -980,6 +980,11 @@ static int sec_touchkey_late_resume(struct early_suspend *h)
 
 	print_debug(__func__,"before suspended");
 	bln_suspended = 0;
+	/* we were using a wakelock, unlock it - even its not enabled or or ongoing*/
+	if (wake_lock_active(&bln_wake_lock)) {
+		print_debug(__func__,"clear wake_lock");
+		wake_unlock(&bln_wake_lock);
+	}
 	/* see if late_resume is running before DISABLE_BL */
 	if (bln_enabled){
 		if (BLN_ongoing) {
@@ -990,11 +995,6 @@ static int sec_touchkey_late_resume(struct early_suspend *h)
 			}
 			if (breathing) stop_breathing();
 
-			/* we were using a wakelock, unlock it */
-			if (wake_lock_active(&bln_wake_lock)) {
-				printk(KERN_DEBUG "[TouchKey] touchkey clear wake_lock\n");
-				wake_unlock(&bln_wake_lock);
-			}
 			/* force DISABLE_BL to ignore the led state because we want it left on */
 			BLN_ongoing = 0;
 		}
@@ -1049,15 +1049,9 @@ static void touchkey_activate(void) {
 	print_debug(__func__,"first of touchkey activate");
 	if (!bln_enabled)
 		bln_suspended=0;
-	else
-		if (!wake_lock_active(&bln_wake_lock)) {
-			print_debug(__func__,"masuk wake lock");
-			printk(KERN_DEBUG "[TouchKey] touchkey get wake_lock\n");
-			wake_lock(&bln_wake_lock);
-		}
 
 	mutex_lock(&touchkey_enable_mutex);
-	printk(KERN_DEBUG "[TouchKey] touchkey activate.\n");
+	print_debug(__func__,"active sekarang");
 	touchkey_ldo_on(1);
 
 	msleep(50);
@@ -1079,8 +1073,7 @@ static void touchkey_deactivate(void) {
 	touchkey_ldo_on(0);
 
 	if (wake_lock_active(&bln_wake_lock)) {
-		print_debug(__func__,"masuk active wakelock");
-		printk(KERN_DEBUG "[TouchKey] touchkey clear wake_lock\n");
+		print_debug(__func__,"masuk ke active wakelock and clear it");
 		wake_unlock(&bln_wake_lock);
 	}
 
@@ -1194,6 +1187,11 @@ static ssize_t bln_status_write(struct device *dev, struct device_attribute *att
 			if (data == 1) {
 				print_debug(__func__,"data==1");
 				bln_enabled = true;
+				if (!wake_lock_active(&bln_wake_lock)) {
+					print_debug(__func__,"masuk wake lock");
+					printk(KERN_DEBUG "[TouchKey] touchkey get wake_lock\n");
+					wake_lock(&bln_wake_lock);
+				}
 			}
 			if (data == 0) {
 				print_debug(__func__,"data==0");
@@ -1268,17 +1266,19 @@ static ssize_t blink_control_write(struct device *dev, struct device_attribute *
 
         if (sscanf(buf, "%u\n", &data) == 1) {
             if (data == 0 || data == 1) {
-                if (data == 0) {
-                	printk(KERN_ERR "[TouchKey] %s data==0",__func__);
-                    bln_blink_enabled = true;
-                    disable_touchkey_backlights();
-                }
+            	if (touchkey_enable==1){
+                    if (data == 0) {
+                    	printk(KERN_ERR "[TouchKey] %s data==0",__func__);
+                        bln_blink_enabled = true;
+                        disable_touchkey_backlights();
+                    }
 
-                if (data == 1) {
-                	printk(KERN_ERR "[TouchKey] %s data==1",__func__);
-                    bln_blink_enabled = false;
-                    enable_touchkey_backlights();
-                }
+                    if (data == 1) {
+                    	printk(KERN_ERR "[TouchKey] %s data==1",__func__);
+                        bln_blink_enabled = false;
+                        enable_touchkey_backlights();
+                    }
+            	}
             }else{
             	printk(KERN_ERR "[TouchKey] %s other than data 0 or 1",__func__);
             }
