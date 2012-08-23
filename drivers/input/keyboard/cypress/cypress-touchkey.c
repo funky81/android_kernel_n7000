@@ -1047,10 +1047,12 @@ static int sec_touchkey_late_resume(struct early_suspend *h)
 #ifdef CONFIG_TOUCHKEY_BLN
 
 static void touchkey_activate(void) {
-	printk(KERN_ERR "%s called",__func__);
-	if (!wake_lock_active(&bln_wake_lock)) {
-		print_debug(__func__,"got wake_lock");
-		wake_lock(&bln_wake_lock);
+	print_debug(__func__,"");
+	if (bln_enabled){
+		if (!wake_lock_active(&bln_wake_lock)) {
+			print_debug(__func__,"wake the wake_lock");
+			wake_lock(&bln_wake_lock);
+		}
 	}
 
 	mutex_lock(&touchkey_enable_mutex);
