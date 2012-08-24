@@ -23,6 +23,7 @@
 #include <linux/wakelock.h>
 #include <linux/rbtree.h>
 #include <linux/spinlock.h>
+#include <linux/types.h>
 
 #define MAX_CPINFO_SIZE		512
 
@@ -38,7 +39,7 @@
 #define IOCTL_MODEM_RESET		_IO('o', 0x21)
 #define IOCTL_MODEM_BOOT_ON		_IO('o', 0x22)
 #define IOCTL_MODEM_BOOT_OFF		_IO('o', 0x23)
-#define IOCTL_MODEM_START		_IO('o', 0x24)
+#define IOCTL_MODEM_BOOT_DONE		_IO('o', 0x24)
 
 #define IOCTL_MODEM_PROTOCOL_SUSPEND	_IO('o', 0x25)
 #define IOCTL_MODEM_PROTOCOL_RESUME	_IO('o', 0x26)
@@ -93,6 +94,13 @@
 #define IP6VERSION		6
 
 #define SOURCE_MAC_ADDR		{0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC}
+
+/* loopback: CP -> AP -> CP */
+#define CP2AP_LOOPBACK_CHANNEL	30
+
+/* ip loopback */
+#define RMNET0_CH_ID		10
+#define DATA_LOOPBACK_CHANNEL	31
 
 /* Debugging features */
 #define MAX_MIF_LOG_PATH_LEN	128
@@ -180,9 +188,9 @@ enum com_state {
 };
 
 enum link_mode {
-	LINK_MODE_INVALID = 0,
-	LINK_MODE_IPC,
+	LINK_MODE_OFFLINE = 0,
 	LINK_MODE_BOOT,
+	LINK_MODE_IPC,
 	LINK_MODE_DLOAD,
 	LINK_MODE_ULOAD,
 };
@@ -252,6 +260,8 @@ struct sipc_fmt_hdr {
 #define SIPC5_CTL_OFFSET	4
 
 #define SIPC5_CH_ID_RAW_0	0
+#define SIPC5_CH_ID_PDP_0	10
+#define SIPC5_CH_ID_PDP_LAST	24
 #define SIPC5_CH_ID_FMT_0	235
 #define SIPC5_CH_ID_RFS_0	245
 #define SIPC5_CH_ID_MAX		255
@@ -270,7 +280,10 @@ struct sipc5_link_hdr {
 	u8 cfg;
 	u8 ch;
 	u16 len;
-	u8 ctl;
+	union {
+		u8 ctl;
+		u16 ext_len;
+	};
 } __packed;
 
 struct sipc5_frame_data {
@@ -285,7 +298,6 @@ struct sipc5_frame_data {
 
 	/* Frame configuration set by header analysis */
 	bool padding;
-	bool ext_fld;
 	bool ctl_fld;
 	bool ext_len;
 
@@ -308,24 +320,6 @@ struct sipc5_frame_data {
 	u8 hdr[SIPC5_MAX_HEADER_SIZE];
 };
 
-static inline unsigned sipc5_get_hdr_size(u8 cfg)
-{
-	if (cfg & SIPC5_EXT_FIELD_EXIST) {
-		if (cfg & SIPC5_CTL_FIELD_EXIST)
-			return SIPC5_HEADER_SIZE_WITH_CTL_FLD;
-		else
-			return SIPC5_HEADER_SIZE_WITH_EXT_LEN;
-	} else {
-		return SIPC5_MIN_HEADER_SIZE;
-	}
-}
-
-static inline unsigned sipc5_calc_padding_size(unsigned len)
-{
-	unsigned residue = len & 0x3;
-	return residue ? (4 - residue) : 0;
-}
-
 struct vnet {
 	struct io_device *iod;
 };
@@ -347,31 +341,14 @@ struct skbuff_private {
 	struct io_device *iod;
 	struct link_device *ld;
 	struct io_device *real_iod; /* for rx multipdp */
-};
+	u8 ch_id;
+	u8 control;
+} __packed;
 
 static inline struct skbuff_private *skbpriv(struct sk_buff *skb)
 {
 	BUILD_BUG_ON(sizeof(struct skbuff_private) > sizeof(skb->cb));
 	return (struct skbuff_private *)&skb->cb;
-}
-
-/** rx_alloc_skb - allocate an skbuff and set skb's iod, ld
- * @length:	length to allocate
- * @gfp_mask:	get_free_pages mask, passed to alloc_skb
- * @iod:	struct io_device *
- * @ld:		struct link_device *
- *
- * %NULL is returned if there is no free memory.
- */
-static inline struct sk_buff *rx_alloc_skb(unsigned int length,
-		gfp_t gfp_mask, struct io_device *iod, struct link_device *ld)
-{
-	struct sk_buff *skb = alloc_skb(length, gfp_mask);
-	if (likely(skb)) {
-		skbpriv(skb)->iod = iod;
-		skbpriv(skb)->ld = ld;
-	}
-	return skb;
 }
 
 struct io_device {
@@ -403,9 +380,6 @@ struct io_device {
 	/* SIPC version */
 	enum sipc_ver ipc_version;
 
-	/* Tx header buffer */
-	struct sipc5_frame_data meta_frame;
-
 	/* Rx queue of sk_buff */
 	struct sk_buff_head sk_rx_q;
 
@@ -423,6 +397,8 @@ struct io_device {
 	/* called from linkdevice when a packet arrives for this iodevice */
 	int (*recv)(struct io_device *iod, struct link_device *ld,
 					const char *data, unsigned int len);
+	int (*recv_skb)(struct io_device *iod, struct link_device *ld,
+					struct sk_buff *skb);
 
 	/* inform the IO device that the modem is now online or offline or
 	 * crashing or whatever...
@@ -527,12 +503,37 @@ struct link_device {
 			unsigned cmd, unsigned long _arg);
 };
 
+/** rx_alloc_skb - allocate an skbuff and set skb's iod, ld
+ * @length:	length to allocate
+ * @iod:	struct io_device *
+ * @ld:		struct link_device *
+ *
+ * %NULL is returned if there is no free memory.
+ */
+static inline struct sk_buff *rx_alloc_skb(unsigned int length,
+		struct io_device *iod, struct link_device *ld)
+{
+	struct sk_buff *skb;
+
+	if (iod->format == IPC_MULTI_RAW || iod->format == IPC_RAW)
+		skb = dev_alloc_skb(length);
+	else
+		skb = alloc_skb(length, GFP_ATOMIC);
+
+	if (likely(skb)) {
+		skbpriv(skb)->iod = iod;
+		skbpriv(skb)->ld = ld;
+	}
+	return skb;
+}
+
 struct modemctl_ops {
 	int (*modem_on) (struct modem_ctl *);
 	int (*modem_off) (struct modem_ctl *);
 	int (*modem_reset) (struct modem_ctl *);
 	int (*modem_boot_on) (struct modem_ctl *);
 	int (*modem_boot_off) (struct modem_ctl *);
+	int (*modem_boot_done) (struct modem_ctl *);
 	int (*modem_force_crash_exit) (struct modem_ctl *);
 	int (*modem_dump_reset) (struct modem_ctl *);
 };
@@ -557,6 +558,13 @@ struct modem_shared {
 	/* for IPC Logger */
 	struct mif_storage storage;
 	spinlock_t lock;
+
+	/* loopbacked IP address
+	 * default is 0.0.0.0 (disabled)
+	 * after you setted this, you can use IP packet loopback using this IP.
+	 * exam: echo 1.2.3.4 > /sys/devices/virtual/misc/umts_multipdp/loopback
+	 */
+	__be32 loopback_ipaddr;
 };
 
 struct modem_ctl {
@@ -624,5 +632,87 @@ struct modem_ctl {
 int sipc4_init_io_device(struct io_device *iod);
 int sipc5_init_io_device(struct io_device *iod);
 
+/**
+ * sipc5_start_valid
+ * @cfg: configuration field of an SIPC5 link frame
+ *
+ * Returns TRUE if the start (configuration field) of an SIPC5 link frame
+ * is valid or returns FALSE if it is not valid.
+ *
+ */
+static inline int sipc5_start_valid(u8 cfg)
+{
+	return (cfg & SIPC5_START_MASK) == SIPC5_START_MASK;
+}
+
+/**
+ * sipc5_get_hdr_len
+ * @cfg: configuration field of an SIPC5 link frame
+ *
+ * Returns the length of SIPC5 link layer header in an SIPC5 link frame
+ *
+ */
+static inline unsigned sipc5_get_hdr_len(u8 cfg)
+{
+	if (cfg & SIPC5_EXT_FIELD_EXIST) {
+		if (cfg & SIPC5_CTL_FIELD_EXIST)
+			return SIPC5_HEADER_SIZE_WITH_CTL_FLD;
+		else
+			return SIPC5_HEADER_SIZE_WITH_EXT_LEN;
+	} else {
+		return SIPC5_MIN_HEADER_SIZE;
+	}
+}
+
+/**
+ * sipc5_get_ch_id
+ * @frm: pointer to an SIPC5 frame
+ *
+ * Returns the channel ID in an SIPC5 link frame
+ *
+ */
+static inline u8 sipc5_get_ch_id(u8 *frm)
+{
+	return *(frm + SIPC5_CH_ID_OFFSET);
+}
+
+/**
+ * sipc5_get_frame_sz16
+ * @frm: pointer to an SIPC5 link frame
+ *
+ * Returns the length of an SIPC5 link frame without the extended length field
+ *
+ */
+static inline unsigned sipc5_get_frame_sz16(u8 *frm)
+{
+	return *((u16 *)(frm + SIPC5_LEN_OFFSET));
+}
+
+/**
+ * sipc5_get_frame_sz32
+ * @frm: pointer to an SIPC5 frame
+ *
+ * Returns the length of an SIPC5 link frame with the extended length field
+ *
+ */
+static inline unsigned sipc5_get_frame_sz32(u8 *frm)
+{
+	return *((u32 *)(frm + SIPC5_LEN_OFFSET));
+}
+
+/**
+ * sipc5_calc_padding_size
+ * @len: length of an SIPC5 link frame
+ *
+ * Returns the padding size for an SIPC5 link frame
+ *
+ */
+static inline unsigned sipc5_calc_padding_size(unsigned len)
+{
+	unsigned residue = len & 0x3;
+	return residue ? (4 - residue) : 0;
+}
+
 extern void set_sromc_access(bool access);
+
 #endif

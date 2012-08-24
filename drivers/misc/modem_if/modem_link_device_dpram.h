@@ -49,6 +49,8 @@
 #define CMC22x_DUMP_BUFF_SIZE		8192	/* 8 KB */
 #define CMC22x_DUMP_WAIT_TIMEOVER	1	/* 1 ms */
 
+#define CMC22x_CRASH_ACK_TIMEOUT	(5 * HZ)
+
 /* interrupt masks.*/
 #define INT_MASK_VALID	0x0080
 #define INT_MASK_CMD	0x0040
@@ -325,21 +327,6 @@ struct dpram_ipc_16k_map {
 	u16 mbx_ap2cp;
 };
 
-struct dpram_irq_log_buff {
-	u16 magic;
-	u16 access;
-
-	u16 fmt_tx_in;
-	u16 fmt_tx_out;
-	u16 fmt_rx_in;
-	u16 fmt_rx_out;
-
-	u16 raw_tx_in;
-	u16 raw_tx_out;
-	u16 raw_rx_in;
-	u16 raw_rx_out;
-};
-
 #define DP_MAX_NAME_LEN	32
 
 struct dpram_ext_op;
@@ -404,24 +391,27 @@ struct dpram_link_device {
 	struct dpram_udl_param udl_param;
 
 	/* For CP RAM dump */
-	struct completion crash_start_complete;
+	struct timer_list crash_ack_timer;
 	struct completion dump_start_complete;
 	struct completion dump_recv_done;
 	struct timer_list dump_timer;
 	int dump_rcvd;		/* Count of dump packets received */
 
-	/* For locking Tx process */
+	/* For locking TX process */
 	spinlock_t tx_lock[MAX_IPC_DEV];
 
 	/* For efficient RX process */
 	struct tasklet_struct rx_tsk;
 	struct dpram_rxb_queue rxbq[MAX_IPC_DEV];
-
-	/* For wake-up/sleep control */
-	atomic_t accessing;
+	struct io_device *iod[MAX_IPC_DEV];
+	bool use_skb;
+	struct sk_buff_head skb_rxq[MAX_IPC_DEV];
 
 	/* For retransmission after buffer full state */
 	atomic_t res_required[MAX_IPC_DEV];
+
+	/* For wake-up/sleep control */
+	atomic_t accessing;
 
 	/* Multi-purpose miscellaneous buffer */
 	u8 *buff;
@@ -429,10 +419,11 @@ struct dpram_link_device {
 	/* DPRAM IPC initialization status */
 	int dpram_init_status;
 
-	/* for mif_irq_log*/
-	struct dpram_irq_log_buff logbuff;
+	/* Alias to device-specific IOCTL function */
+	int (*ext_ioctl)(struct dpram_link_device *dpld, struct io_device *iod,
+			unsigned int cmd, unsigned long arg);
 
-	/* for dpram dump */
+	/* For DPRAM dump */
 	void (*dpram_dump)(struct link_device *ld, char *buff);
 
 	/* Common operations for each DPRAM */
@@ -474,25 +465,17 @@ struct dpram_ext_op {
 	void (*init_dl_map)(struct dpram_link_device *dpld);
 	void (*init_ul_map)(struct dpram_link_device *dpld);
 
-	int (*prepare_download)(struct dpram_link_device *dpld);
-	int (*download_boot)(struct dpram_link_device *dpld, void *arg);
-	int (*download_skb)(struct dpram_link_device *dpld,
-				struct sk_buff *skb);
-	int (*download_bin)(struct dpram_link_device *dpld, void *arg);
-	int (*download_nv)(struct dpram_link_device *dpld, void *arg);
+	int (*dload_bin)(struct dpram_link_device *dpld, struct sk_buff *skb);
 	void (*dload_cmd_handler)(struct dpram_link_device *dpld, u16 cmd);
-	void (*dl_task)(unsigned long data);
 
-	int (*cp_boot_start)(struct dpram_link_device *dpld);
-	int (*cp_boot_post_process)(struct dpram_link_device *dpld);
 	void (*cp_start_handler)(struct dpram_link_device *dpld);
 
+	void (*crash_log)(struct dpram_link_device *dpld);
 	int (*dump_start)(struct dpram_link_device *dpld);
 	int (*dump_update)(struct dpram_link_device *dpld, void *arg);
 
-	void (*log_disp)(struct dpram_link_device *dpld);
-	int (*upload_step1)(struct dpram_link_device *dpld);
-	int (*upload_step2)(struct dpram_link_device *dpld, void *arg);
+	int (*ioctl)(struct dpram_link_device *dpld, struct io_device *iod,
+		unsigned int cmd, unsigned long arg);
 };
 
 struct dpram_ext_op *dpram_get_ext_op(enum modem_t modem);

@@ -150,6 +150,9 @@ static int link_pm_hub_standby(void *args)
 	struct usb_link_device *usb_ld = pm_data->usb_ld;
 	int err = 0;
 
+	if (!has_hub(usb_ld))
+		return err;
+
 	mif_info("wait hub standby\n");
 
 	if (!pm_data->port_enable) {
@@ -316,8 +319,8 @@ int link_pm_init(struct usb_link_device *usb_ld, void *data)
 	pm_data->gpio_link_slavewake = pm_pdata->gpio_link_slavewake;
 	pm_data->link_reconnect = pm_pdata->link_reconnect;
 	pm_data->port_enable = pm_pdata->port_enable;
-	pm_data->cpufreq_lock = pm_pdata->cpufreq_lock;
-	pm_data->cpufreq_unlock = pm_pdata->cpufreq_unlock;
+	pm_data->freq_lock = pm_pdata->freq_lock;
+	pm_data->freq_unlock = pm_pdata->freq_unlock;
 	pm_data->autosuspend_delay_ms = pm_pdata->autosuspend_delay_ms;
 	pm_data->block_autosuspend = false;
 
@@ -372,5 +375,3 @@ err_misc_register:
 	kfree(pm_data);
 	return err;
 }
-
-

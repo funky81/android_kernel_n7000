@@ -266,6 +266,8 @@ int mdm6600_init_modemctl_device(struct modem_ctl *mc, struct modem_data *pdata)
 
 static int mdm6600_on(struct modem_ctl *mc)
 {
+	struct link_device *ld = get_current_link(mc->iod);
+
 	pr_info("[MSM] <%s>\n", __func__);
 
 	if (!mc->gpio_reset_req_n || !mc->gpio_cp_reset
@@ -288,6 +290,7 @@ static int mdm6600_on(struct modem_ctl *mc)
 	gpio_set_value(mc->gpio_pda_active, 1);
 
 	mc->iod->modem_state_changed(mc->iod, STATE_BOOTING);
+	ld->mode = LINK_MODE_BOOT;
 
 	return 0;
 }
@@ -561,6 +564,22 @@ static irqreturn_t phone_active_irq_handler(int irq, void *arg)
 	return IRQ_HANDLED;
 }
 
+#if defined(CONFIG_SIM_DETECT)
+static irqreturn_t sim_detect_irq_handler(int irq, void *_mc)
+{
+	struct modem_ctl *mc = (struct modem_ctl *)_mc;
+
+	pr_info("[MSM] <%s> gpio_sim_detect = %d\n",
+		__func__, mc->gpio_sim_detect);
+
+	if (mc->iod && mc->iod->sim_state_changed)
+		mc->iod->sim_state_changed(mc->iod,
+		!gpio_get_value(mc->gpio_sim_detect));
+
+	return IRQ_HANDLED;
+}
+#endif
+
 static void mdm6600_get_ops(struct modem_ctl *mc)
 {
 	mc->ops.modem_on = mdm6600_on;
@@ -614,6 +633,36 @@ int mdm6600_init_modemctl_device(struct modem_ctl *mc, struct modem_data *pdata)
 		free_irq(mc->irq_phone_active, mc);
 		return ret;
 	}
+
+#if defined(CONFIG_SIM_DETECT)
+	mc->gpio_sim_detect = platform_get_irq_byname(pdev, "sim_irq");
+	pr_info("[MSM] <%s> SIM_DECTCT IRQ# = %d\n",
+		__func__, mc->gpio_sim_detect);
+
+	if (mc->gpio_sim_detect) {
+		ret = request_irq(mc->irq_sim_detect, sim_detect_irq_handler,
+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+			"msm_sim_detect", mc);
+		if (ret) {
+			mif_err("[MSM] failed to request_irq: %d\n", ret);
+			mc->sim_state.online = false;
+			mc->sim_state.changed = false;
+			return ret;
+		}
+
+		ret = enable_irq_wake(mc->irq_sim_detect);
+		if (ret) {
+			mif_err("[MSM] failed to enable_irq_wake: %d\n", ret);
+			free_irq(mc->irq_sim_detect, mc);
+			mc->sim_state.online = false;
+			mc->sim_state.changed = false;
+			return ret;
+		}
+
+		/* initialize sim_state => insert: gpio=0, remove: gpio=1 */
+		mc->sim_state.online = !gpio_get_value(mc->gpio_sim_detect);
+	}
+#endif
 
 	return ret;
 }

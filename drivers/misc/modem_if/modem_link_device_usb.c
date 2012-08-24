@@ -32,6 +32,8 @@
 #include "modem_utils.h"
 #include "modem_link_pm_usb.h"
 
+#include <mach/regs-gpio.h>
+
 #define URB_COUNT	4
 
 static int usb_tx_urb_with_skb(struct usb_link_device *usb_ld,
@@ -447,6 +449,7 @@ static void usb_tx_work(struct work_struct *work)
 static int if_usb_suspend(struct usb_interface *intf, pm_message_t message)
 {
 	struct usb_link_device *usb_ld = usb_get_intfdata(intf);
+	struct link_pm_data *pm_data = usb_ld->link_pm_data;
 	int i;
 
 	if (atomic_inc_return(&usb_ld->suspend_count) == IF_USB_DEVNUM_MAX) {
@@ -455,8 +458,8 @@ static int if_usb_suspend(struct usb_interface *intf, pm_message_t message)
 		for (i = 0; i < IF_USB_DEVNUM_MAX; i++)
 			usb_kill_anchored_urbs(&usb_ld->devdata[i].reading);
 
-		if (usb_ld->link_pm_data->cpufreq_unlock)
-			usb_ld->link_pm_data->cpufreq_unlock();
+		if (pm_data->freq_unlock)
+			pm_data->freq_unlock(&usb_ld->usbdev->dev);
 
 		wake_unlock(&usb_ld->susplock);
 	}
@@ -481,10 +484,16 @@ static void post_resume_work(struct work_struct *work)
 {
 	struct usb_link_device *usb_ld = container_of(work,
 			struct usb_link_device, post_resume_work.work);
+	struct link_pm_data *pm_data = usb_ld->link_pm_data;
+	struct usb_device *udev = usb_ld->usbdev;
 
-	/* lock cpu frequency when L2->L0 */
-	if (usb_ld->link_pm_data->cpufreq_lock)
-		usb_ld->link_pm_data->cpufreq_lock();
+	/* if already disconnected before run this workqueue */
+	if (!udev || !(&udev->dev) || !usb_ld->if_usb_connected)
+		return;
+
+	/* lock cpu/bus frequency when L2->L0 */
+	if (pm_data->freq_lock)
+		pm_data->freq_lock(&udev->dev);
 }
 
 static void wait_enumeration_work(struct work_struct *work)
@@ -809,6 +818,13 @@ irqreturn_t usb_resume_irq(int irq, void *data)
 	wake_status = hwup;
 
 	irq_set_irq_type(irq, hwup ? IRQF_TRIGGER_LOW : IRQF_TRIGGER_HIGH);
+	/*
+	 * exynos BSP has problem when using level interrupt.
+	 * If we change irq type from interrupt handler,
+	 * we can get level interrupt twice.
+	 * this is temporary solution until SYS.LSI resolve this problem.
+	 */
+	__raw_writel(eint_irq_to_bit(irq), S5P_EINT_PEND(EINT_REG_NR(irq)));
 	wake_lock_timeout(&usb_ld->gpiolock, 100);
 
 	mif_err("< H-WUP %d\n", hwup);

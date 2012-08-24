@@ -242,7 +242,7 @@ static void xmm_gpio_revers_bias_restore(void)
 /* HSIC specific function */
 void set_slave_wake(void)
 {
-	int spin = 20;
+//	int spin = 20;
 	if (gpio_get_value(modem_link_pm_data.gpio_link_hostwake)) {
 		pr_info("[MODEM_IF]Slave Wake\n");
 		if (gpio_get_value(modem_link_pm_data.gpio_link_slavewake)) {
@@ -265,8 +265,6 @@ void set_host_states(struct platform_device *pdev, int type)
 	}
 
 	if (active_ctl.gpio_initialized) {
-		if (type)
-			set_slave_wake();
 		pr_err("[MODEM_IF]Active States =%d, %s\n", type, pdev->name);
 		gpio_direction_output(modem_link_pm_data.gpio_link_active,
 			type);

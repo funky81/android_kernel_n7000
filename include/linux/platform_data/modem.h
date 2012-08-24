@@ -118,10 +118,10 @@ struct modemlink_pm_data {
 	void *hub_pm_data;
 	bool has_usbhub;
 
-	/* frequency lock */
+	/* cpu/bus frequency lock */
 	atomic_t freqlock;
-	int (*cpufreq_lock)(void);
-	int (*cpufreq_unlock)(void);
+	int (*freq_lock)(struct device *dev);
+	int (*freq_unlock)(struct device *dev);
 
 	int autosuspend_delay_ms; /* if zero, the default value is used */
 };
