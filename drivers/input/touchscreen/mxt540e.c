@@ -124,6 +124,8 @@ u8 max_report_id;
 struct report_id_map_t *rid_map;
 static bool rid_map_alloc;
 
+extern void print_debug(const char function_name[], char text[]);
+
 struct mxt540e_data {
 	struct i2c_client *client;
 	struct input_dev *input_dev;
@@ -1066,6 +1068,7 @@ static void calibration_check_func(struct mxt540e_data *data)
 	}
 
 }
+void (*mxt540e_touch_cb)(void) = NULL;
 
 static void report_input_data(struct mxt540e_data *data)
 {
@@ -1113,8 +1116,13 @@ static void report_input_data(struct mxt540e_data *data)
 #else
 			if (data->fingers[i].z == 0)
 				printk(KERN_DEBUG "[TSP][%d] released\n", i);
-			else
+			else {
 				printk(KERN_DEBUG "[TSP][%d] pressed\n", i);
+	            if(mxt540e_touch_cb!=NULL) {
+	            	printk(KERN_DEBUG "[TSP][%d] Register the callback of TouchKey", i);
+	            	(*mxt540e_touch_cb)();
+	            }
+			}
 #endif
 		}
 

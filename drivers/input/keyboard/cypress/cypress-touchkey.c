@@ -1567,16 +1567,19 @@ static struct miscdevice bln_device = {
         .name  = "backlightnotification",
 };
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT224_U1
-extern void (*mxt224_touch_cb)(void);
-#endif
+//#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT224_U1
+extern void (*mxt540e_touch_cb)(void);
+//#endif
 
 void cypress_notify_touch(void)
 {
+	print_debug(__func__,"");
 	if (!bln_suspended && led_timeout > 0 && led_on_touch) {
+		print_debug(__func__,"masuk");
 		schedule_work(&led_fadein_work);
-		mod_timer(&led_timer, jiffies + msecs_to_jiffies(led_timeout));
+		//mod_timer(&led_timer, jiffies + msecs_to_jiffies(led_timeout));
 	}
+
 }
 
 #endif
@@ -1739,9 +1742,10 @@ static int i2c_touchkey_probe(struct i2c_client *client,
 	status = 0x20;
 	i2c_touchkey_write((u8 *)&status, 1);
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT224_U1
-	mxt224_touch_cb = cypress_notify_touch;
-#endif
+//#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT224_U1
+	print_debug(__func__,"cypress notify touch");
+	mxt540e_touch_cb = cypress_notify_touch;
+//#endif
 
 #endif
 	return 0;
