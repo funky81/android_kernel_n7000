@@ -269,8 +269,16 @@ static void mmc_wait_for_req_done(struct mmc_host *host,
 		wait_for_completion(&mrq->completion);
 
 	cmd = mrq->cmd;
+#if defined(CONFIG_MACH_P4NOTE)
+	if (mmc_card_removed(host->card))
+#else
+	/*
+	 * eMMC reset does not run because this condition
+	 * So, needed to change this on P4NOTE project
+	 */
 	if (!cmd->error || !cmd->retries ||
 	    mmc_card_removed(host->card))
+#endif
 		return;
 
 	/* if card is mmc type and nonremovable, and there are erros after
