@@ -1577,7 +1577,8 @@ void cypress_notify_touch(void)
 	if (!bln_suspended && led_timeout > 0 && led_on_touch) {
 		print_debug(__func__,"masuk");
 		schedule_work(&led_fadein_work);
-		//mod_timer(&led_timer, jiffies + msecs_to_jiffies(led_timeout));
+		if (!BLN_ongoing)
+			mod_timer(&led_timer, jiffies + msecs_to_jiffies(led_timeout));
 	}
 
 }
