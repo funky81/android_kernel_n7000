@@ -392,7 +392,8 @@ static int __devinit mshci_s3c_probe(struct platform_device *pdev)
 			continue;
 		}
 
-#if defined(CONFIG_EXYNOS4_MSHC_VPLL_46MHZ)
+#if defined(CONFIG_EXYNOS4_MSHC_VPLL_46MHZ) || \
+	defined(CONFIG_EXYNOS4_MSHC_EPLL_45MHZ)
 	if (!strcmp("sclk_dwmci", name)) {
 		struct clk *parent_clk;
 
@@ -405,11 +406,19 @@ static int __devinit mshci_s3c_probe(struct platform_device *pdev)
 			for ( ; ; ) {
 				parent_clk = clk_get_parent(parent_clk);
 				if (parent_clk) {
+#ifdef CONFIG_EXYNOS4_MSHC_EPLL_45MHZ
+					if (!strcmp("fout_epll", \
+							parent_clk->name)) {
+						clk_set_rate \
+							(parent_clk, 180633600);
+						pdata->cfg_ddr(pdev, 0);
+#elif defined(CONFIG_EXYNOS4_MSHC_VPLL_46MHZ)
 					if (!strcmp("fout_vpll", \
 							parent_clk->name)) {
 						clk_set_rate \
 							(parent_clk, 370882812);
 						pdata->cfg_ddr(pdev, 0);
+#endif
 						clk_enable(parent_clk);
 						break;
 					} else

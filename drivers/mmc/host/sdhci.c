@@ -645,15 +645,19 @@ static u8 sdhci_calc_timeout(struct sdhci_host *host, struct mmc_command *cmd)
 	/* timeout in us */
 	if (!data)
 		target_timeout = cmd->cmd_timeout_ms * 1000;
-	else {
-		/* patch added for divide by zero once issue. */
-		if (host && host->clock)
-			target_timeout = data->timeout_ns / 1000 +
-				data->timeout_clks / host->clock;
+	else {  
+	/* patch added for divide by zero once issue for P2_USA_TMO project. */
+		#ifndef CONFIG_TARGET_LOCALE_P2TMO_TEMP
+		target_timeout = data->timeout_ns / 1000 +
+			data->timeout_clks / host->clock;
+	        #else
+		if (host!=NULL)
+                target_timeout = data->timeout_ns / 1000 +
+                        data->timeout_clks / host->clock;
 		else
 			return 0;
-	}
-
+	        #endif
+             }
 	if (host->quirks & SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK)
 		host->timeout_clk = host->clock / 1000;
 
@@ -1407,8 +1411,7 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		if ((ios->timing == MMC_TIMING_UHS_SDR50) ||
 		    (ios->timing == MMC_TIMING_UHS_SDR104) ||
 		    (ios->timing == MMC_TIMING_UHS_DDR50) ||
-		    (ios->timing == MMC_TIMING_UHS_SDR25) ||
-		    (ios->timing == MMC_TIMING_UHS_SDR12))
+		    (ios->timing == MMC_TIMING_UHS_SDR25))
 			ctrl |= SDHCI_CTRL_HISPD;
 
 		ctrl_2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
@@ -1969,10 +1972,6 @@ static void sdhci_tasklet_finish(unsigned long param)
 		   controllers do not like that. */
 		sdhci_reset(host, SDHCI_RESET_CMD);
 		sdhci_reset(host, SDHCI_RESET_DATA);
-#ifdef CONFIG_MACH_PX
-		printk(KERN_DEBUG "%s: Controller is resetted!\n",
-			mmc_hostname(host->mmc));
-#endif
 	}
 
 	host->mrq = NULL;
@@ -2069,10 +2068,6 @@ static void sdhci_cmd_irq(struct sdhci_host *host, u32 intmask)
 
 	if (host->cmd->error) {
 		tasklet_schedule(&host->finish_tasklet);
-#ifdef CONFIG_MACH_PX
-		printk(KERN_DEBUG "%s: finish tasklet schedule\n",
-			mmc_hostname(host->mmc));
-#endif
 		return;
 	}
 
@@ -2326,9 +2321,8 @@ int sdhci_suspend_host(struct sdhci_host *host, pm_message_t state)
 	/* Disable tuning since we are suspending */
 	if (host->version >= SDHCI_SPEC_300 && host->tuning_count &&
 	    host->tuning_mode == SDHCI_TUNING_MODE_1) {
+		del_timer_sync(&host->tuning_timer);
 		host->flags &= ~SDHCI_NEEDS_RETUNING;
-		mod_timer(&host->tuning_timer, jiffies +
-			host->tuning_count * HZ);
 	}
 
 	if (host->mmc->pm_flags & MMC_PM_IGNORE_SUSPEND_RESUME) {
@@ -2357,30 +2351,6 @@ int sdhci_suspend_host(struct sdhci_host *host, pm_message_t state)
 }
 
 EXPORT_SYMBOL_GPL(sdhci_suspend_host);
-
-#if defined(CONFIG_MACH_GC1) || defined(CONFIG_TARGET_LOCALE_KOR)
-void sdhci_shutdown_host(struct sdhci_host *host)
-{
-	sdhci_disable_card_detection(host);
-
-	free_irq(host->irq, host);
-
-	if (host->vmmc) {
-		if (regulator_is_enabled(host->vmmc)) {
-#ifdef CONFIG_MIDAS_COMMON
-			if (host->ops->set_power)
-				host->ops->set_power(0);
-#endif
-			regulator_disable(host->vmmc);
-			pr_info("%s : MMC Card OFF\n", __func__);
-#if defined(CONFIG_TARGET_LOCALE_KOR)
-			mdelay(5);
-#endif
-		}
-	}
-}
-EXPORT_SYMBOL_GPL(sdhci_shutdown_host);
-#endif
 
 int sdhci_resume_host(struct sdhci_host *host)
 {
@@ -2639,7 +2609,8 @@ int sdhci_add_host(struct sdhci_host *host)
 	else
 		mmc->max_discard_to = (1 << 27) / host->timeout_clk;
 
-	mmc->caps |= MMC_CAP_SDIO_IRQ | MMC_CAP_ERASE;
+	//SpeedMod: Disable TRIM to fix hard brick bug
+	mmc->caps |= MMC_CAP_SDIO_IRQ; // | MMC_CAP_ERASE;
 
 	if (host->quirks & SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12)
 		host->flags |= SDHCI_AUTO_CMD12;

@@ -781,15 +781,6 @@ static int sdhci_s3c_suspend(struct platform_device *dev, pm_message_t pm)
 	return ret;
 }
 
-#if defined(CONFIG_MACH_GC1) || defined(CONFIG_TARGET_LOCALE_KOR)
-static void sdhci_s3c_shutdown(struct platform_device *dev)
-{
-	struct sdhci_host *host = platform_get_drvdata(dev);
-
-	sdhci_shutdown_host(host);
-}
-#endif
-
 static int sdhci_s3c_resume(struct platform_device *dev)
 {
 	struct sdhci_host *host = platform_get_drvdata(dev);
@@ -809,9 +800,6 @@ static struct platform_driver sdhci_s3c_driver = {
 	.remove		= __devexit_p(sdhci_s3c_remove),
 	.suspend	= sdhci_s3c_suspend,
 	.resume	        = sdhci_s3c_resume,
-#if defined(CONFIG_MACH_GC1) || defined(CONFIG_TARGET_LOCALE_KOR)
-	.shutdown	= sdhci_s3c_shutdown,
-#endif
 	.driver		= {
 		.owner	= THIS_MODULE,
 		.name	= "s3c-sdhci",
